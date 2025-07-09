@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config, Csv # <-- تأكد من هذه الاستيرادات
+import posixpath # <-- إضافة هذا الاستيراد لحل مشكلة مسارات Windows
+from decouple import config, Csv
+
 import dj_database_url
 
 # لا حاجة لاستيراد cloudinary, cloudinary.uploader, cloudinary.api هنا إذا كنت تستخدم cloudinary_storage
@@ -115,16 +117,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# استخدم posixpath.join لضمان استخدام فواصل المسار الصحيحة (/) لـ URLs
+STATIC_ROOT = posixpath.join(BASE_DIR, 'staticfiles')
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    posixpath.join(BASE_DIR, 'static'), # <-- التغيير هنا أيضاً
 ]
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+# من الأفضل استخدام posixpath هنا أيضاً للاتساق
+MEDIA_ROOT = posixpath.join(BASE_DIR, 'mediafiles')
 
 # Cloudinary Settings
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -135,8 +139,8 @@ CLOUDINARY_STORAGE = {
     'API_KEY': config('CLOUDINARY_API_KEY'),
     'API_SECRET': config('CLOUDINARY_API_SECRET'),
     'MEDIA_FOLDER': 'media',
-    # 'STATIC_FOLDER': 'static',
-    'STATIC_RESOURCE_TYPE': 'auto', # <-- تصحيح الخطأ الإملائي هنا
+    # 'STATIC_FOLDER': 'static', # هذا السطر تم التعليق عليه مسبقاً، اتركه كما هو إذا لم تكن تستخدمه
+    'STATIC_RESOURCE_TYPE': 'auto', # تم تصحيح الخطأ الإملائي بالفعل في النسخة السابقة
 }
 
 
