@@ -2,29 +2,28 @@ services:
   - type: web
     name: filter-studio-app
     env: python
-    pythonVersion: 3.10.11
+    pythonVersion: 3.10.11 # <-- هذا هو الأهم لإصدار بايثون
     buildCommand: "./build.sh"
     startCommand: "gunicorn filter_studio.wsgi:application"
-    healthCheckPath: /login/ 
+    healthCheckPath: /admin/login/ # يمكن أن يكون /login/ أو /admin/login/
     envVars:
-      - key: DATABASE_URL
+      - key: DATABASE_URL # هذا هو متغير Render الافتراضي، لا يضر وجوده
         fromDatabase:
-          name: filter-studio-db 
+          name: filter-studio-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
         value: 1
-      - key: EXTERNAL_DATABASE_URL
-        fromSecret: EXTERNAL_DATABASE_URL
+      - key: EXTERNAL_DATABASE_URL # <--- هذا هو المهم لقاعدة بياناتك في Supabase
+        value: postgresql://postgres:filterstudio11@db.dlfewlzybgtytibhpdkv.supabase.co:5432/postgres
       - key: CLOUDINARY_CLOUD_NAME
         value: dvn1afvqs
       - key: CLOUDINARY_API_KEY
-        sync: false
+        value: '158996543676117' # تأكد من علامات الاقتباس إذا كانت القيمة تبدأ برقم
       - key: CLOUDINARY_API_SECRET
-        fromSecret: CLOUDINARY_API_SECRET
-        value: lzbf6ULqc4crhpoHKNt-OHpXsWs
+        value: 'lzbf6ULqc4crhpoHKNt-OHpXsWs' # تأكد من علامات الاقتباس إذا كانت القيمة تبدأ برقم أو تحتوي على رموز خاصة
       - key: DEBUG
-        value: "False" 
+        value: "False"
       - key: ALLOWED_HOSTS
-        value: https://filterstudio.onrender.com      
+        value: filterstudio.onrender.com # <-- بدون https://
