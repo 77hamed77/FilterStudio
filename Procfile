@@ -1,0 +1,1 @@
+web: gunicorn filter_studio.wsgi:application
