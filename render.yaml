@@ -2,6 +2,7 @@ services:
   - type: web
     name: filter-studio-app
     env: python
+    pythonVersion: 3.10.11
     buildCommand: "./build.sh"
     startCommand: "gunicorn filter_studio.wsgi:application"
     healthCheckPath: /login/ 
@@ -15,14 +16,15 @@ services:
       - key: WEB_CONCURRENCY
         value: 1
       - key: EXTERNAL_DATABASE_URL
-        value: postgresql://postgres:filterstudio11@db.dlfewlzybgtytibhpdkv.supabase.co:5432/postgres
+        fromSecret: EXTERNAL_DATABASE_URL
       - key: CLOUDINARY_CLOUD_NAME
         value: dvn1afvqs
       - key: CLOUDINARY_API_KEY
-        value: 158996543676117
+        sync: false
       - key: CLOUDINARY_API_SECRET
+        fromSecret: CLOUDINARY_API_SECRET
         value: lzbf6ULqc4crhpoHKNt-OHpXsWs
       - key: DEBUG
         value: "False" 
       - key: ALLOWED_HOSTS
-        value: your-app-name.onrender.com      
+        value: https://filterstudio.onrender.com      
