@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تأكيد حذف الصورة | استوديو الصور</title>
+    <script src="https://cdn.tailwindcss.com "></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&family=Cairo&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark body {
+            background: #111827;
+            color: #f3f4f6;
+        }
+        
+        @keyframes gradient {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        
+        .bg-gradient-animated {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        .dark .bg-gradient-animated {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fade-in 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-animated text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- Theme and Language Toggle -->
+    <div class="absolute top-4 left-4 z-10 flex space-x-4 space-x-reverse">
+        <button id="lang-toggle" class="bg-white bg-opacity-20 backdrop-blur-sm text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-300">
+            <span class="ar-content">العربية</span>
+            <span class="en-content hidden">English</span>
+        </button>
+        <button id="theme-toggle" class="bg-white bg-opacity-20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-opacity-30 transition-all duration-300">
+            <svg id="light-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <svg id="dark-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4">
+        <div class="max-w-lg mx-auto">
+            <div class="bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 hover:scale-[1.01]">
+                <div class="p-6 md:p-8">
+                    <h1 class="text-2xl md:text-3xl font-extrabold mb-4 text-center text-red-600 dark:text-red-400">
+                        <span class="ar-content">هل أنت متأكد؟</span>
+                        <span class="en-content hidden">Are you sure?</span>
+                    </h1>
+                    
+                    <p class="mb-6 text-gray-700 dark:text-gray-300 text-center max-w-lg mx-auto">
+                        <span class="ar-content">حذف الصورة</span>
+                        <span class="en-content hidden">Deleting image</span>
+                        <strong class="mx-1">{{ image.original_image.name|default:"الصورة" }}</strong>
+                        <span class="ar-content">هو إجراء لا يمكن التراجع عنه.</span>
+                        <span class="en-content hidden">is an irreversible action.</span>
+                    </p>
+
+                    <div class="relative group mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg transform rotate-1 scale-100 group-hover:rotate-0 group-hover:scale-105 transition-transform duration-500"></div>
+                        <img 
+                            src="{{ image.processed_image.url }}" 
+                            alt="معاينة الصورة" 
+                            class="relative z-10 w-full h-auto max-h-64 object-contain rounded-lg border-2 border-red-500 dark:border-red-700 transform transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div class="absolute inset-0 bg-red-500 bg-opacity-0 group-hover:bg-opacity-20 flex items-center justify-center transition-opacity duration-300">
+                            <svg class="w-16 h-16 text-red-600 dark:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m2-6v6m2-6v6m2-6v6M9 7h6m-6 0h6m-6 0h6m6 0H9" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <form method="post" class="flex flex-col space-y-4">
+                        {% csrf_token %}
+                        
+                        <!-- Warning Box -->
+                        <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 p-4 rounded-lg text-yellow-800 dark:text-yellow-200 animate-fade-in">
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <p class="font-semibold">
+                                    <span class="ar-content">هذا الإجراء لا يمكن التراجع عنه!</span>
+                                    <span class="en-content hidden">This action cannot be undone!</span>
+                                </p>
+                            </div>
+                            <p class="mt-2 text-sm">
+                                <span class="ar-content">ستتم إزالة الصورة من قاعدة البيانات بشكل دائم.</span>
+                                <span class="en-content hidden">The image will be permanently removed from the database.</span>
+                            </p>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="space-y-3 mt-6">
+                            <!-- Delete Button -->
+                            <button 
+                                type="submit" 
+                                class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 dark:hover:bg-red-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m2-6v6m2-6v6m2-6v6M9 7h6m-6 0h6m-6 0h6m6 0H9" />
+                                </svg>
+                                <span class="ar-content">نعم، احذف الصورة</span>
+                                <span class="en-content hidden">Yes, delete the image</span>
+                            </button>
+                            
+                            <!-- Cancel Button -->
+                            <a 
+                                href="{% url 'image_detail' image.id %}" 
+                                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                <span class="ar-content">لا، عد إلى تفاصيل الصورة</span>
+                                <span class="en-content hidden">No, go back to image details</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Footer -->
+                <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                    <span class="ar-content">عرض تفاصيل الصورة قبل الحذف</span>
+                    <span class="en-content hidden">Review image before deletion</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactivity -->
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const lightIcon = document.getElementById('light-icon');
+        const darkIcon = document.getElementById('dark-icon');
+        
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            lightIcon.classList.toggle('hidden');
+            darkIcon.classList.toggle('hidden');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        });
+        
+        // Check for saved theme
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+        }
+
+        // Language toggle
+        const langToggle = document.getElementById('lang-toggle');
+        const arContent = document.querySelectorAll('.ar-content');
+        const enContent = document.querySelectorAll('.en-content');
+        
+        langToggle.addEventListener('click', () => {
+            document.documentElement.dir = document.documentElement.dir === 'rtl' ? 'ltr' : 'rtl';
+            
+            arContent.forEach(el => el.classList.toggle('hidden'));
+            enContent.forEach(el => el.classList.toggle('hidden'));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تفاصيل الصورة | استوديو الصور</title>
+    
+    <!-- ✅ إصلاح: تم حذف المسافة الإضافية من نهاية الرابط -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Cairo', sans-serif; transition: background-color 0.3s ease; }
+        .dark body { background: #111827; color: #f3f4f6; }
+        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+        .bg-gradient-animated { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+        .dark .bg-gradient-animated { background: linear-gradient(135deg, #374151 0%, #1f2937 100%); }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.5s ease forwards; }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- أزرار التحكم العلوية -->
+    <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+        <a href="{% url 'studio' %}" title="العودة للاستوديو" class="bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition">
+             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v0a8 8 0 01-8 8H10a8 8 0 01-8-8v0a8 8 0 018-8h10m-16 0l6 6m-6-6l6-6"/></svg>
+        </a>
+        <button id="theme-toggle" class="bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition">
+            <svg id="light-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="dark-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+    </div>
+    
+    <!-- المحتوى الرئيسي -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div class="max-w-6xl mx-auto w-full">
+            <div class="bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+                        تفاصيل الصورة
+                    </h1>
+
+                    <!-- ==================== الجزء الذي تم تعديله ==================== -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        
+                        <!-- قسم مقارنة الصور -->
+                        <div class="col-span-1 lg:col-span-1 space-y-6">
+                            <!-- الصورة الأصلية -->
+                            <div class="bg-gray-100 dark:bg-gray-700/50 p-4 rounded-xl shadow-inner">
+                                <h3 class="text-lg font-bold mb-3 text-center text-gray-800 dark:text-gray-200">الصورة الأصلية</h3>
+                                <img 
+                                    src="{{ image.original_image.url }}" 
+                                    alt="الصورة الأصلية" 
+                                    class="w-full h-auto max-h-96 object-contain rounded-lg"
+                                />
+                            </div>
+                            <!-- الصورة المعدلة -->
+                            <div class="bg-gray-100 dark:bg-gray-700/50 p-4 rounded-xl shadow-inner">
+                                <h3 class="text-lg font-bold mb-3 text-center text-purple-700 dark:text-purple-400">الصورة المعدلة</h3>
+                                <img 
+                                    src="{{ image.processed_image.url }}" 
+                                    alt="صورة مع فلتر {{ image.get_filter_applied_display }}" 
+                                    class="w-full h-auto max-h-96 object-contain rounded-lg"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- قسم التفاصيل والأزرار -->
+                        <div class="col-span-1 lg:col-span-1">
+                            <div class="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-md mb-6">
+                                <h2 class="text-xl font-bold mb-4 text-purple-700 dark:text-purple-300">معلومات الصورة</h2>
+                                <ul class="space-y-4 text-gray-700 dark:text-gray-300">
+                                    <li class="flex items-center"><strong class="font-semibold ml-2">اسم المستخدم:</strong><span>{{ image.user.username }}</span></li>
+                                    <li class="flex items-center"><strong class="font-semibold ml-2">نوع الفلتر:</strong><span>{{ image.get_filter_applied_display }}</span></li>
+                                    <li class="flex items-center"><strong class="font-semibold ml-2">تاريخ المعالجة:</strong><span>{{ image.processing_date|date:"Y-m-d H:i" }}</span></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-8 space-y-4">
+                                <a href="{{ image.processed_image.url }}" download class="flex items-center justify-center w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition">تحميل الصورة المعدلة</a>
+                                <a href="{% url 'delete_image' image.id %}" class="flex items-center justify-center w-full px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition">حذف الصورة</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- ==================== نهاية الجزء المعدل ==================== -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript للثيم -->
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const lightIcon = document.getElementById('light-icon');
+        const darkIcon = document.getElementById('dark-icon');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            lightIcon.classList.toggle('hidden');
+            darkIcon.classList.toggle('hidden');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        });
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

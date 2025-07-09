@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تسجيل الدخول | استوديو الصور</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        /* كل كود الـ CSS يبقى كما هو، لا حاجة لتعديله */
+        body { font-family: 'Cairo', sans-serif; transition: background-color 0.3s ease; }
+        .dark body { background: #111827; color: #f3f4f6; }
+        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+        .bg-gradient-animated { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+        .dark .bg-gradient-animated { background: linear-gradient(135deg, #374151 0%, #1f2937 100%); }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.5s ease forwards; }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-animated text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- ==================== الجزء الذي تم تعديله ==================== -->
+    <!-- أزرار التحكم العلوية -->
+    <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+        {% comment %} <!-- زر العودة للصفحة الرئيسية -->
+        <a href="{% url 'home' %}" title="العودة للصفحة الرئيسية" class="bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        </a> {% endcomment %}
+
+        <!-- زر تبديل اللغة -->
+        <button id="lang-toggle" class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full hover:bg-white/30 transition text-sm font-semibold">
+            <span class="ar-content">English</span>
+            <span class="en-content hidden">العربية</span>
+        </button>
+
+        <!-- زر تبديل الثيم -->
+        <button id="theme-toggle" class="bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition">
+            <svg id="light-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="dark-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+    </div>
+    <!-- ==================== نهاية الجزء المعدل ==================== -->
+    
+    <!-- Login Container -->
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all duration-500 hover:scale-[1.01]">
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+                <span class="ar-content">مرحباً بك في استوديو الصور</span>
+                <span class="en-content hidden">Welcome to Photo Studio</span>
+            </h1>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 rounded border border-red-400 bg-red-100 dark:bg-red-900/50 p-3 text-red-700 dark:text-red-200 font-semibold animate-fade-in">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}" class="space-y-6" autocomplete="off">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="username" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+                        <span class="ar-content">اسم المستخدم</span>
+                        <span class="en-content hidden">Username</span>
+                    </label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        placeholder="أدخل اسم المستخدم"
+                        class="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition"
+                    />
+                </div>
+
+                <div>
+                    <label for="password" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+                        <span class="ar-content">كلمة المرور</span>
+                        <span class="en-content hidden">Password</span>
+                    </label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        placeholder="أدخل كلمة المرور"
+                        class="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition"
+                    />
+                </div>
+
+                <button type="submit" class="w-full bg-purple-700 hover:bg-purple-800 dark:hover:bg-purple-900 text-white font-bold py-3 rounded-md shadow-md transition transform hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600">
+                    <span class="ar-content">تسجيل الدخول</span>
+                    <span class="en-content hidden">Login</span>
+                </button>
+            </form>
+
+            <p class="mt-6 text-center text-gray-700 dark:text-gray-300">
+                <span class="ar-content">لا تملك حساب؟</span>
+                <span class="en-content hidden">Don't have an account?</span>
+                <a href="{% url 'register' %}" class="text-purple-700 dark:text-purple-300 hover:underline font-semibold ml-1">
+                    <span class="ar-content">سجل الآن</span>
+                    <span class="en-content hidden">Register Now</span>
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactivity -->
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const lightIcon = document.getElementById('light-icon');
+        const darkIcon = document.getElementById('dark-icon');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            lightIcon.classList.toggle('hidden');
+            darkIcon.classList.toggle('hidden');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        });
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+        }
+
+        // ==================== الجزء الذي تم تعديله ====================
+        // Language toggle
+        const langToggle = document.getElementById('lang-toggle');
+        const arContent = document.querySelectorAll('.ar-content');
+        const enContent = document.querySelectorAll('.en-content');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        langToggle.addEventListener('click', () => {
+            const isRtl = document.documentElement.dir === 'rtl';
+            document.documentElement.dir = isRtl ? 'ltr' : 'rtl';
+            
+            arContent.forEach(el => el.classList.toggle('hidden'));
+            enContent.forEach(el => el.classList.toggle('hidden'));
+            
+            // Update placeholders based on new language
+            if (isRtl) { // was RTL, now is LTR (English)
+                usernameInput.placeholder = 'Enter your username';
+                passwordInput.placeholder = 'Enter your password';
+            } else { // was LTR, now is RTL (Arabic)
+                usernameInput.placeholder = 'أدخل اسم المستخدم';
+                passwordInput.placeholder = 'أدخل كلمة المرور';
+            }
+        });
+        // ==================== نهاية الجزء المعدل ====================
+    </script>
+</body>
+</html>

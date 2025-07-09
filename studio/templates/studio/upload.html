@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>رفع وتعديل صورة | استوديو الصور</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .dark body { background: #111827; }
+        .preview-container.loading .preview-image-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.5) url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" style="background:none"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%239333ea" stroke-width="10" fill="none" stroke-dasharray="141.37166941154067 49.12388980384689" transform="rotate(27.4354 50 50)"%3E%3CanimateTransform attributeName="transform" type="rotate" values="0 50 50;360 50 50" times="0;1" dur="1s" repeatCount="indefinite" /%3E%3C/circle%3E%3C/svg%3E') center/50px no-repeat;
+            backdrop-filter: blur(2px);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div class="absolute top-4 left-4 z-20">
+        <button id="theme-toggle" class="bg-white/30 dark:bg-gray-700/50 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/40 transition">
+            <!-- Icons for theme toggle -->
+        </button>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div class="max-w-lg mx-auto w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 space-y-6">
+            <h2 class="text-3xl font-extrabold text-center text-purple-700 dark:text-purple-400">رفع وتعديل صورة</h2>
+            
+            <div id="message-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="p-3 mb-4 text-sm font-semibold rounded {% if message.tags == 'success' %}bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-200{% elif message.tags == 'error' %}bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200{% else %}bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            </div>
+
+            <form id="uploadForm" method="post" enctype="multipart/form-data" class="space-y-6" onsubmit="document.getElementById('loader').classList.remove('hidden')">
+                {% csrf_token %}
+                <input type="hidden" name="crop_x" id="crop_x"><input type="hidden" name="crop_y" id="crop_y"><input type="hidden" name="crop_width" id="crop_width"><input type="hidden" name="crop_height" id="crop_height">
+
+                <div>
+                    <label for="image_input" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">1. اختر صورة</label>
+                    <input type="file" id="image_input" name="image" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 dark:file:bg-purple-700 file:text-purple-700 dark:file:text-purple-100 hover:file:bg-purple-100 dark:hover:file:bg-purple-600 transition cursor-pointer">
+                </div>
+                
+                <div id="preview_container" class="hidden">
+                    <div class="preview-image-wrapper relative">
+                        <img id="preview-image" alt="معاينة الصورة" class="w-full max-h-96 object-contain mx-auto rounded-lg bg-gray-100 dark:bg-gray-700">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="filter_select" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">2. اختر الفلتر</label>
+                    <select id="filter_select" name="filter" required class="w-full rounded-md border border-gray-300 dark:border-gray-600 p-3 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-purple-500">
+                        <option value="" disabled selected>-- اختر فلتر --</option>
+                        {% for value, name in filter_choices %}
+                            <option value="{{ value }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div id="sharpen_controls" class="hidden space-y-2">
+                    <label for="sharpen_level" class="block font-medium text-gray-700 dark:text-gray-300">درجة الحدة: <span id="sharpen_value" class="font-bold text-purple-600">5.5</span></label>
+                    <input type="range" id="sharpen_level" name="sharpen_level" min="1" max="10" value="5.5" step="0.5" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <div id="blur_controls" class="hidden space-y-2">
+                    <label for="blur_level" class="block font-medium text-gray-700 dark:text-gray-300">درجة التعتيم: <span id="blur_value" class="font-bold text-purple-600">10</span></label>
+                    <input type="range" id="blur_level" name="blur_level" min="1" max="25" value="10" step="1" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">تطبيق ورفع</button>
+            </form>
+            <div class="text-center"><a href="{% url 'studio' %}" class="font-medium text-purple-600 hover:text-purple-500">العودة إلى الاستوديو</a></div>
+        </div>
+    </div>
+    
+    <div id="loader" class="hidden fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-75 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+        <p class="font-semibold text-lg text-purple-700 dark:text-purple-300">جاري معالجة الصورة...</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('uploadForm');
+        const imageInput = document.getElementById('image_input');
+        const previewContainer = document.getElementById('preview_container');
+        const previewImage = document.getElementById('preview-image');
+        const filterSelect = document.getElementById('filter_select');
+        const sharpenControls = document.getElementById('sharpen_controls');
+        const sharpenLevel = document.getElementById('sharpen_level');
+        const sharpenValue = document.getElementById('sharpen_value');
+        const blurControls = document.getElementById('blur_controls');
+        const blurLevel = document.getElementById('blur_level');
+        const blurValue = document.getElementById('blur_value');
+        const messageContainer = document.getElementById('message-container');
+        
+        let originalImageDataURL = null;
+        let cropper = null;
+        let previewTimeout;
+
+        function initCropper(url) {
+            if (cropper) cropper.destroy();
+            previewImage.src = url;
+            cropper = new Cropper(previewImage, { viewMode: 1, autoCrop: false, background: false });
+        }
+
+        imageInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                originalImageDataURL = event.target.result;
+                previewContainer.classList.remove('hidden');
+                initCropper(originalImageDataURL);
+                filterSelect.value = '';
+                sharpenControls.classList.add('hidden');
+                blurControls.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        async function updatePreview() {
+            if (!originalImageDataURL) return;
+            const filter = filterSelect.value;
+            if (!filter) {
+                initCropper(originalImageDataURL);
+                return;
+            }
+
+            previewContainer.classList.add('loading');
+            messageContainer.innerHTML = '';
+            
+            const formData = new FormData();
+            formData.append('image_data', originalImageDataURL);
+            formData.append('filter_type', filter);
+            formData.append('sharpen_level', sharpenLevel.value);
+            formData.append('blur_level', blurLevel.value);
+            
+            const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            try {
+                const response = await fetch("{% url 'preview_filter' %}", {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                    body: formData
+                });
+                if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+                
+                if (data.image) {
+                    cropper ? cropper.replace(data.image) : (previewImage.src = data.image);
+                }
+                if (data.message) {
+                    messageContainer.innerHTML = `<div class="p-3 mb-4 text-sm font-semibold rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200">${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Preview Error:', error);
+                messageContainer.innerHTML = `<div class="p-3 mb-4 text-sm font-semibold rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200">فشل في المعاينة: ${error.message}</div>`;
+            } finally {
+                previewContainer.classList.remove('loading');
+            }
+        }
+
+        function debounceUpdatePreview() {
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(updatePreview, 300);
+        }
+
+        filterSelect.addEventListener('change', () => {
+            const filter = filterSelect.value;
+            sharpenControls.classList.toggle('hidden', filter !== 'sharpen');
+            blurControls.classList.toggle('hidden', filter !== 'blur_faces');
+            
+            if (cropper) {
+                filter === 'crop' ? cropper.crop() : cropper.clear();
+            }
+
+            if (filter === 'remove_background') {
+                 messageContainer.innerHTML = `<div class="p-3 mb-4 text-sm font-semibold rounded bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-200">المعاينة غير متاحة لهذا الفلتر. اضغط "تطبيق ورفع" لرؤية النتيجة.</div>`;
+                 initCropper(originalImageDataURL);
+            } else {
+                updatePreview();
+            }
+        });
+
+        sharpenLevel.addEventListener('input', () => {
+            sharpenValue.textContent = sharpenLevel.value;
+            debounceUpdatePreview();
+        });
+
+        blurLevel.addEventListener('input', () => {
+            blurValue.textContent = blurLevel.value;
+            debounceUpdatePreview();
+        });
+
+        form.addEventListener('submit', e => {
+            if (filterSelect.value === 'crop' && cropper && cropper.cropped) {
+                const data = cropper.getData(true);
+                document.getElementById('crop_x').value = data.x;
+                document.getElementById('crop_y').value = data.y;
+                document.getElementById('crop_width').value = data.width;
+                document.getElementById('crop_height').value = data.height;
+            }
+        });
+        
+        // Add theme toggle logic if needed, otherwise this is complete.
+    });
+    </script>
+</body>
+</html>
