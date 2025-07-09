@@ -21,7 +21,7 @@ FILTER_CHOICES = [
     ('invert', 'قلب الألوان'),
     ('sharpen', 'زيادة الحدة (تفاعلي)'),
     ('blur_faces', 'طمس الوجوه (تفاعلي)'),
-    ('remove_background', 'إزالة الخلفية'),
+    # ('remove_background', 'إزالة الخلفية'),
     ('detect_human_face', 'التعرف على وجوه البشر'),
     ('detect_cat_face', 'التعرف على وجوه القطط'),
     ('detect_eyes', 'التعرف على العيون'),

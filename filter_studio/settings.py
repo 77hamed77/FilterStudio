@@ -99,7 +99,7 @@ AWS_S3_REGION_NAME = config('SUPABASE_S3_REGION_NAME')
 # be overwritten when uploading to the specified S3 bucket.
 AWS_S3_FILE_OVERWRITE = False # لا تسمح بالكتابة فوق الملفات بنفس الاسم
 AWS_DEFAULT_ACL = 'public-read' # لجعل الملفات المرفوعة قابلة للقراءة بشكل عام
-
+AWS_S3_SIGNATURE_VERSION = 's3v4' # تأكد من استخدام الإصدار الصحيح للتوقيع
 # Set the default storage for media files
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
