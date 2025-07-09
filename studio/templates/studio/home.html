@@ -230,10 +230,10 @@
                 ابدأ رحلتك في تعديل الصور بسهولة واحترافية مع أدوات متقدمة وذكاء اصطناعي
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in" style="animation-delay: 0.6s;">
-                <a href="#" class="btn-primary px-8 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" id="loginBtn">
+                <a href="{% url 'login' %}" class="btn-primary px-8 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" id="loginBtn">
                     تسجيل الدخول
                 </a>
-                <a href="#" class="px-8 py-4 bg-white bg-opacity-20 text-white font-semibold rounded-lg shadow-lg hover:bg-opacity-30 transform hover:scale-105 transition-all duration-300 backdrop-blur-sm" id="registerBtn">
+                <a href="{% url 'register' %}" class="px-8 py-4 bg-white bg-opacity-20 text-white font-semibold rounded-lg shadow-lg hover:bg-opacity-30 transform hover:scale-105 transition-all duration-300 backdrop-blur-sm" id="registerBtn">
                     سجل الآن
                 </a>
             </div>
@@ -282,7 +282,7 @@
                 <p class="text-xl mb-8 opacity-90" id="ctaSubtitle">
                     انضم إلى آلاف المصممين والمصورين الذين يثقون بنا
                 </p>
-                <a href="#" class="btn-primary px-10 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" id="ctaBtn">
+                <a href="{% url 'register' %}" class="btn-primary px-10 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" id="ctaBtn">
                     ابدأ مجاناً
                 </a>
             </div>
@@ -293,7 +293,7 @@
     <footer class="py-12 bg-black bg-opacity-20 backdrop-blur-lg">
         <div class="container mx-auto px-4 text-center">
             <p class="opacity-80" id="footerText">
-                &copy; 2024 استوديو الصور. جميع الحقوق محفوظة.
+                &copy; 2025 مطور ويب شامل حامد المرعي. جميع الحقوق محفوظة.
             </p>
         </div>
     </footer>
@@ -320,7 +320,7 @@
                 ctaTitle: 'ابدأ رحلتك الإبداعية اليوم',
                 ctaSubtitle: 'انضم إلى آلاف المصممين والمصورين الذين يثقون بنا',
                 ctaBtn: 'ابدأ مجاناً',
-                footerText: '© 2024 استوديو الصور. جميع الحقوق محفوظة.'
+                footerText: '© 2025 مطور ويب شامل حامد المرعي. جميع الحقوق محفوظة.'
             },
             en: {
                 lang: 'en',
@@ -341,7 +341,7 @@
                 ctaTitle: 'Start Your Creative Journey Today',
                 ctaSubtitle: 'Join thousands of designers and photographers who trust us',
                 ctaBtn: 'Start Free',
-                footerText: '© 2024 Photo Studio. All rights reserved.'
+                footerText: '© 2025 FulStack web Hamid Al-Murai. All rights reserved.'
             }
         };
 
