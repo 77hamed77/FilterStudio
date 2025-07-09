@@ -5,7 +5,7 @@ services:
     pythonVersion: 3.10.11
     buildCommand: "./build.sh"
     startCommand: "gunicorn filter_studio.wsgi:application"
-    healthCheckPath: /admin/login/
+    healthCheckPath: /studio/login/
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -17,12 +17,16 @@ services:
         value: 1
       - key: EXTERNAL_DATABASE_URL
         value: postgresql://postgres.dlfewlzybgtytibhpdkv:filterstudio11@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
-      - key: CLOUDINARY_CLOUD_NAME
-        value: dvm1urgyb
-      - key: CLOUDINARY_API_KEY
-        value: '968182156163972'
-      - key: CLOUDINARY_API_SECRET
-        value: '8wh7AagAQWE4ZWr3T7x0KNyhUAY'
+      - key: AWS_ACCESS_KEY_ID
+        value: 'bae71c74115b608cae852d982ddc0afa'
+      - key: AWS_SECRET_ACCESS_KEY
+        value: 'fadc1332be0be1492ff71bb0369446014cf2dc6a93848a66bf3b20be895dbfb0'
+      - key: AWS_STORAGE_BUCKET_NAME
+        value: 'filterstudiobucket'
+      - key: AWS_S3_ENDPOINT_URL
+        value: 'https://dlfewlzybgtytibhpdkv.supabase.co/storage/v1/s3'
+      - key: AWS_S3_REGION_NAME
+        value: 'eu-central-1'
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS

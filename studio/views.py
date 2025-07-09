@@ -1,4 +1,4 @@
-# studio/views.py (النسخة النهائية مع كل الميزات)
+# studio/views.py (النسخة النهائية المصححة)
 
 import os
 import cv2
@@ -15,7 +15,8 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from .models import ProcessedImage, FILTER_CHOICES
+from .models import ProcessedImage, FILTER_CHOICES, user_directory_path # <-- إضافة user_directory_path للاستخدام المباشر
+from django.utils.text import slugify # <-- إضافة لاستخدامه لأسماء الملفات إذا لزم الأمر (اختياري)
 from .forms import CustomUserCreationForm
 
 # --- قسم تحميل النماذج (Cascades) ---
@@ -35,9 +36,9 @@ for name, filename in CASCADE_FILES.items():
     if os.path.exists(path):
         CASCADES[name] = cv2.CascadeClassifier(path)
         if CASCADES[name].empty(): print(f"!!! خطأ: فشل تحميل '{filename}'")
-        else: print(f"    - تم تحميل '{filename}' بنجاح.")
+        else: print(f"    - تم تحميل '{filename}' بنجاح.")
     else:
-        print(f"!!! خطأ فادح: الملف '{filename}' غير موجود.")
+        print(f"!!! خطأ فادح: الملف '{filename}' غير موجود. يرجى التحقق من مسار static/haarcascades.") # رسالة أوضح
         CASCADES[name] = None
 print("--- اكتمل تحميل النماذج ---")
 
@@ -58,21 +59,34 @@ def apply_cv_filter(img, filter_type, params=None, original_buffer=None):
     
     if filter_type == 'remove_background':
         if original_buffer:
-            result_bytes = remove(original_buffer)
-            processed_array = np.frombuffer(result_bytes, np.uint8)
-            processed = cv2.imdecode(processed_array, cv2.IMREAD_UNCHANGED) # للحفاظ على الشفافية
+            try:
+                result_bytes = remove(original_buffer)
+                processed_array = np.frombuffer(result_bytes, np.uint8)
+                # استخدام IMREAD_UNCHANGED للحفاظ على قناة الألفا (الشفافية)
+                processed = cv2.imdecode(processed_array, cv2.IMREAD_UNCHANGED) 
+                if processed is None:
+                    info_message = "خطأ: فشل إزالة الخلفية. قد تكون الصورة غير مدعومة."
+                    processed = img.copy() # إرجاع الصورة الأصلية في حالة الفشل
+            except Exception as e:
+                info_message = f"خطأ في إزالة الخلفية: {e}"
+                processed = img.copy() # إرجاع الصورة الأصلية في حالة الخطأ
         else:
-            info_message = "خطأ: بيانات الصورة الأصلية غير متوفرة."
+            info_message = "خطأ: بيانات الصورة الأصلية غير متوفرة لإزالة الخلفية."
+            processed = img.copy() # إرجاع الصورة الأصلية
     elif filter_type == 'blur_faces':
         cascade = CASCADES.get('human_face')
         if cascade and not cascade.empty():
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             faces = cascade.detectMultiScale(gray, **DETECTION_PARAMS['human_face'])
             blur_level = int(params.get('blur_level', 10))
-            kernel_size = (blur_level * 2) + 1 # يجب أن يكون فردياً
+            if blur_level % 2 == 0: blur_level += 1 # تأكد أن kernel_size فردي
+            kernel_size = (blur_level, blur_level) 
             for (x, y, w, h) in faces:
-                processed[y:y+h, x:x+w] = cv2.GaussianBlur(processed[y:y+h, x:x+w], (kernel_size, kernel_size), 0)
+                if w > 0 and h > 0: # تجنب الأبعاد الصفرية
+                    processed[y:y+h, x:x+w] = cv2.GaussianBlur(processed[y:y+h, x:x+w], kernel_size, 0)
             info_message = f'تم تعتيم {len(faces)} وجه.'
+        else:
+            info_message = "خطأ: نموذج كشف الوجوه غير متوفر."
     elif filter_type == 'grayscale':
         processed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     elif filter_type == 'invert':
@@ -80,28 +94,54 @@ def apply_cv_filter(img, filter_type, params=None, original_buffer=None):
     elif filter_type == 'crop':
         x, y, w, h = params.get('x',0), params.get('y',0), params.get('w',0), params.get('h',0)
         if w > 0 and h > 0:
-            processed = img[y:y+h, x:x+w]
+            # تأكد أن حدود القص ضمن أبعاد الصورة
+            y_max, x_max = img.shape[:2]
+            x = max(0, min(x, x_max))
+            y = max(0, min(y, y_max))
+            w = max(0, min(w, x_max - x))
+            h = max(0, min(h, y_max - y))
+            if w > 0 and h > 0: # تأكد أن الأبعاد لا تزال صالحة بعد التعديل
+                processed = img[y:y+h, x:x+w]
+            else:
+                info_message = "أبعاد القص غير صالحة."
+                processed = img.copy() # إرجاع الصورة الأصلية
+        else:
+            info_message = "يرجى تحديد منطقة القص."
+            processed = img.copy() # إرجاع الصورة الأصلية
     elif filter_type == 'sharpen':
         level = params.get('level', 5.5)
-        intensity = 5 + (level - 1) * 0.4
-        kernel = np.array([[0, -1, 0], [-1, intensity, -1], [0, -1, 0]])
+        # يمكن تعديل الكيرنل لضبط حدة الشحذ
+        kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]]) # مثال على كيرنل شحذ بسيط
+        # يمكنك استخدام level لضبط قوة الكيرنل إذا أردت
         processed = cv2.filter2D(img, -1, kernel)
     elif filter_type in ['detect_smile', 'detect_eyes']:
         human_face_cascade = CASCADES.get('human_face')
-        feature_name = filter_type.split('_')[1]
+        feature_name = filter_type.split('_')[1] # 'smile' أو 'eyes'
         feature_cascade = CASCADES.get(feature_name)
-        if human_face_cascade and feature_cascade:
+        if human_face_cascade and feature_cascade and not human_face_cascade.empty() and not feature_cascade.empty():
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             faces = human_face_cascade.detectMultiScale(gray, **DETECTION_PARAMS['human_face'])
             detected_items_count = 0
             for (x, y, w, h) in faces:
+                cv2.rectangle(processed, (x, y), (x+w, y+h), (255, 0, 0), 2) # ارسم مستطيل حول الوجه أولاً
                 face_roi_gray = gray[y:y+h, x:x+w]
                 face_roi_color = processed[y:y+h, x:x+w]
-                features = feature_cascade.detectMultiScale(face_roi_gray, **DETECTION_PARAMS[feature_name])
+                
+                # ضبط minSize لـ eyes/smile ضمن منطقة الوجه
+                min_size_feature = DETECTION_PARAMS[feature_name]['minSize']
+                
+                features = feature_cascade.detectMultiScale(
+                    face_roi_gray, 
+                    scaleFactor=DETECTION_PARAMS[feature_name]['scaleFactor'],
+                    minNeighbors=DETECTION_PARAMS[feature_name]['minNeighbors'],
+                    minSize=min_size_feature
+                )
                 for (fx, fy, fw, fh) in features:
                     cv2.rectangle(face_roi_color, (fx, fy), (fx+fw, fy+fh), (0, 255, 0), 2)
                     detected_items_count += 1
-            info_message = f'عدد الميزات المكتشفة: {detected_items_count}'
+            info_message = f'عدد الوجوه المكتشفة: {len(faces)}، عدد الميزات المكتشفة: {detected_items_count}'
+        else:
+            info_message = "خطأ: نماذج الكشف عن الوجه/الميزة غير متوفرة."
     elif filter_type.startswith('detect_'):
         cascade_name = filter_type.replace('detect_', '')
         cascade = CASCADES.get(cascade_name)
@@ -112,7 +152,20 @@ def apply_cv_filter(img, filter_type, params=None, original_buffer=None):
             for (x, y, w, h) in objects:
                 cv2.rectangle(processed, (x, y), (x+w, y+h), (0, 255, 0), 3)
             info_message = f'عدد الكائنات المكتشفة: {len(objects)}'
-            
+        else:
+            info_message = f"خطأ: نموذج الكشف عن {cascade_name} غير متوفر."
+    else:
+        info_message = "لا يوجد فلتر أو فلتر غير مدعوم."
+        processed = img.copy() # إرجاع الصورة الأصلية إذا لم يتم تطبيق فلتر
+
+    # تأكد من أن الصورة الناتجة هي RGB أو BGR قبل التشفير
+    if processed.ndim == 2: # إذا كانت صورة رمادية
+        processed = cv2.cvtColor(processed, cv2.COLOR_GRAY2BGR)
+    elif processed.shape[2] == 4: # إذا كانت RGBA (من remove_background)
+        # يمكن تحويلها إلى BGR إذا كنت لا تخطط لحفظ الشفافية في JPG
+        # ولكن بما أننا نحفظ PNG لـ remove_background، فهذا جيد.
+        pass # دعها كما هي للسماح بحفظ PNG بقناة ألفا
+    
     return processed, info_message
 
 # --- دالة عرض جديدة للمعاينات الحية ---
@@ -123,30 +176,47 @@ def preview_filter_view(request):
     try:
         image_data_url = request.POST.get('image_data')
         filter_type = request.POST.get('filter_type')
+        
+        # التأكد من وجود البيانات
+        if not image_data_url or not filter_type:
+            return JsonResponse({'error': 'بيانات الصورة أو نوع الفلتر مفقود'}, status=400)
+
         params = {
             'level': float(request.POST.get('sharpen_level') or 5.5),
             'blur_level': float(request.POST.get('blur_level') or 10),
         }
         
+        # إذا كان الفلتر هو 'crop'، استخرج أبعاد القص من طلب الـ POST
+        if filter_type == 'crop':
+            params['x'] = int(float(request.POST.get('crop_x') or 0))
+            params['y'] = int(float(request.POST.get('crop_y') or 0))
+            params['w'] = int(float(request.POST.get('crop_width') or 0))
+            params['h'] = int(float(request.POST.get('crop_height') or 0))
+
+
         format, imgstr = image_data_url.split(';base64,') 
         img_data = base64.b64decode(imgstr)
         img_array = np.frombuffer(img_data, np.uint8)
-        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR) # استخدم IMREAD_COLOR للمعاينات
+
+        if img is None:
+            return JsonResponse({'error': 'تعذر قراءة ملف الصورة للمعاينه.'}, status=400)
 
         processed_img, info_message = apply_cv_filter(img, filter_type, params, original_buffer=img_data)
         
-        # التعامل مع الصور الشفافة والرمادية
-        if len(processed_img.shape) < 3 or processed_img.shape[2] == 1:
+        # التعامل مع الصور الشفافة والرمادية للمعاينه
+        # يجب أن يكون PNG للحفاظ على الشفافية
+        if len(processed_img.shape) == 2: # إذا كانت صورة رمادية
             processed_img = cv2.cvtColor(processed_img, cv2.COLOR_GRAY2BGR)
-
-        _, buffer = cv2.imencode('.png', processed_img) # Always send PNG for transparency support
+        
+        # استخدام '.png' دائمًا للمعاينة لدعم الشفافية ولتجنب مشاكل التنسيق
+        _, buffer = cv2.imencode('.png', processed_img)
         processed_img_str = base64.b64encode(buffer).decode('utf-8')
         
         return JsonResponse({'image': 'data:image/png;base64,' + processed_img_str, 'message': info_message})
     except Exception as e:
         print(f"Error in preview: {e}")
         return JsonResponse({'error': f'فشل في المعاينة: {e}'}, status=500)
-# ... (جزء من studio/views.py) ...
 
 # --- دالة الرفع الرئيسية ---
 @login_required
@@ -159,6 +229,7 @@ def upload_view(request):
     if not image_file:
         messages.error(request, 'يرجى اختيار صورة.')
         return redirect('upload')
+    
     valid_filters = [choice[0] for choice in FILTER_CHOICES]
     if filter_type not in valid_filters:
         messages.error(request, 'فلتر غير صالح.')
@@ -167,7 +238,7 @@ def upload_view(request):
     try:
         img_buffer = image_file.read()
         img_array = np.frombuffer(img_buffer, np.uint8)
-        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR) # استخدم IMREAD_COLOR للصور الأصلية
         if img is None:
             messages.error(request, 'تعذر قراءة ملف الصورة.')
             return redirect('upload')
@@ -183,22 +254,44 @@ def upload_view(request):
 
         processed, info_message = apply_cv_filter(img, filter_type, params, original_buffer=img_buffer)
 
-        # التعامل مع الصور الشفافة عند الحفظ
-        # ✅ هذا الجزء يبدو صحيحاً للتعامل مع تنسيقات PNG/JPG
-        if len(processed.shape) > 2 and processed.shape[2] == 4: # إذا كانت الصورة تحتوي على قناة ألفا (شفافية)
-            ext, encoder = '.png', cv2.imencode('.png', processed)[1]
+        # تحديد الامتداد بناءً على وجود قناة ألفا
+        # إذا كانت الصورة تحتوي على قناة ألفا (شفافية)، احفظها كـ PNG
+        if len(processed.shape) > 2 and processed.shape[2] == 4:
+            ext = '.png'
+            _, encoder = cv2.imencode('.png', processed)
         else:
-            # إذا لم تكن شفافة، تأكد أنها ليست صورة أحادية اللون قبل التحويل إلى BGR للتصوير كـ JPG
-            if len(processed.shape) < 3: processed = cv2.cvtColor(processed, cv2.COLOR_GRAY2BGR)
-            ext, encoder = '.jpg', cv2.imencode('.jpg', processed)[1]
-
-        processed_content = ContentFile(encoder.tobytes())
-        file_name, _ = os.path.splitext(image_file.name)
-        processed_filename = f'processed_{file_name}{ext}'
-
-        # ✅ هذا هو الجزء الذي يقوم بالحفظ الفعلي
+            # إذا لم تكن شفافة، تأكد أنها ليست صورة أحادية اللون قبل التحويل إلى BGR (إذا كانت رمادية)
+            if len(processed.shape) == 2:
+                processed = cv2.cvtColor(processed, cv2.COLOR_GRAY2BGR)
+            ext = '.jpg'
+            _, encoder = cv2.imencode('.jpg', processed)
+        
+        # الحصول على اسم الملف الأصلي قبل المعالجة
+        original_file_name_base, original_file_ext = os.path.splitext(image_file.name)
+        # اسم الملف المعالج: استخدم دالة user_directory_path لإنشاء مسار فريد
+        # ولكن يجب أن نمرر اسم الملف الذي سنستخدمه
+        processed_filename_for_path = f'processed_{original_file_name_base}{ext}'
+        
+        # حفظ الصورة الأصلية والمعالجة
+        # Django سيتولى استخدام S3Boto3Storage بشكل تلقائي هنا
         new_image = ProcessedImage(user=request.user, original_image=image_file, filter_applied=filter_type)
-        new_image.processed_image.save(processed_filename, processed_content, save=True) # هنا يتم استخدام CloudinaryStorage
+        
+        # حفظ الصورة المعالجة باستخدام ContentFile مع الاسم الناتج من user_directory_path
+        # user_directory_path تحتاج إلى instance و filename
+        # هنا سنقوم بإنشاء اسم ملف فريد لـ processed_image يدوياً قبل تمريره لـ save()
+        processed_file_content = ContentFile(encoder.tobytes())
+        
+        # استخدم دالة user_directory_path لتوليد اسم فريد للصورة المعالجة
+        # يجب أن تمرر 'instance' (new_image) و 'filename' (processed_filename_for_path)
+        # ولكن حقل ImageField يتولى استدعاء user_directory_path بنفسه عندما تمرر اسم ملف.
+        # فقط تأكد من أن processed_filename_for_path هو اسم الملف (وليس مساراً كاملاً)
+        
+        # الأفضل هو أن تمرر اسم الملف (بدون مسار المجلد) إلى save()
+        # و models.py's user_directory_path سيقوم ببناء المسار الكام
+        new_image.processed_image.save(processed_filename_for_path, processed_file_content, save=True)
+
+        # يجب أن تكون new_image.original_image.name قد تم حفظها بالفعل بواسطة Django
+        # عند تعيين image_file لها.
 
         if info_message: messages.info(request, info_message)
         messages.success(request, 'تم تطبيق الفلتر ورفع الصورة بنجاح!')
@@ -209,7 +302,7 @@ def upload_view(request):
         messages.error(request, f'حدث خطأ غير متوقع أثناء معالجة الصورة: {e}')
         return redirect('upload')
 
-# ... (بقية views.py) ...
+# --- دوال المصادقة والعرض الأخرى (لا تحتاج لتعديل) ---
 def home_view(request):
     return render(request, 'studio/home.html')
 
@@ -245,7 +338,7 @@ def image_detail_view(request, image_id):
 def delete_image_view(request, image_id):
     image = get_object_or_404(ProcessedImage, id=image_id, user=request.user)
     if request.method == "POST":
-        image.delete()
+        image.delete() # هذا سيستدعي دالة delete في Model ويحذف من S3
         messages.success(request, "تم حذف الصورة بنجاح.")
         return redirect('studio')
     return render(request, 'studio/confirm_delete.html', {'image': image})
