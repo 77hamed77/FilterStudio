@@ -16,7 +16,7 @@ services:
       - key: WEB_CONCURRENCY
         value: 1
       - key: EXTERNAL_DATABASE_URL
-        value: postgresql://postgres:filterstudio11@db.dlfewlzybgtytibhpdkv.supabase.co:5432/postgres
+        value: postgresql://postgres.dlfewlzybgtytibhpdkv:filterstudio11@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
       - key: CLOUDINARY_CLOUD_NAME
         value: dvn1afvqs
       - key: CLOUDINARY_API_KEY
