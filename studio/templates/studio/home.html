@@ -1,96 +1,459 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="scroll-smooth">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>استوديو الصور | الصفحة الرئيسية</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;600;800&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: 'Cairo', sans-serif; }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeInUp { animation: fadeInUp 0.9s ease-out both; }
-    .bg-hero {
-      background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://source.unsplash.com/1600x900/?photo,editor');
-      background-size: cover;
-      background-position: center;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>الصفحة الرئيسية | استوديو الصور</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --dark-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        * {
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .ar { font-family: 'Cairo', sans-serif; }
+        .en { font-family: 'Inter', sans-serif; }
+
+        /* Dark mode styles */
+        .dark {
+            background: var(--dark-gradient);
+            color: #f8fafc;
+        }
+
+        /* Animated background */
+        .bg-animated {
+            background: var(--primary-gradient);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        .dark .bg-animated {
+            background: var(--dark-gradient);
+            background-size: 400% 400%;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Feature cards */
+        .feature-card {
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .dark .feature-card:hover {
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Glowing text effect */
+        .glow-text {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+        }
+
+        /* Button animations */
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover:before {
+            left: 100%;
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-knob {
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(30px);
+        }
+
+        /* Hero section animations */
+        .hero-content {
+            animation: heroFadeIn 1.2s ease-out;
+        }
+
+        @keyframes heroFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Feature icons */
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-icon:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
 </head>
-
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition duration-300">
-  <!-- Header -->
-  <header class="flex justify-between items-center p-4 md:px-12">
-    <h1 class="text-xl font-bold text-purple-700 dark:text-purple-400">استوديو الصور</h1>
-    <div class="flex items-center gap-3">
-      <button id="langToggle" class="text-sm bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">English</button>
-      <button id="themeToggle" class="text-sm bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">🌓</button>
+<body class="min-h-screen bg-animated text-gray-900 dark:text-gray-100" id="body">
+    <!-- Floating particles -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="particle w-2 h-2 bg-white opacity-30" style="top: 10%; left: 10%; animation-delay: 0s;"></div>
+        <div class="particle w-3 h-3 bg-purple-300 opacity-40" style="top: 20%; right: 20%; animation-delay: 2s;"></div>
+        <div class="particle w-1 h-1 bg-blue-300 opacity-50" style="top: 60%; left: 30%; animation-delay: 4s;"></div>
+        <div class="particle w-2 h-2 bg-pink-300 opacity-30" style="bottom: 30%; right: 40%; animation-delay: 1s;"></div>
+        <div class="particle w-4 h-4 bg-indigo-300 opacity-20" style="bottom: 10%; left: 60%; animation-delay: 3s;"></div>
     </div>
-  </header>
 
-  <!-- Hero Section -->
-  <section class="bg-hero h-[90vh] flex flex-col items-center justify-center text-center text-white px-4">
-    <h2 class="text-4xl md:text-5xl font-extrabold mb-4 animate-fadeInUp ar-text">رحلتك الإبداعية تبدأ هنا</h2>
-    <h2 class="text-4xl md:text-5xl font-extrabold mb-4 animate-fadeInUp en-text hidden">Your Creative Journey Starts Here</h2>
-    <p class="text-lg md:text-xl mb-8 max-w-xl animate-fadeInUp ar-text">استخدم أدواتنا لتعديل الصور، تحسين الجودة، اكتشاف الوجوه، والمزيد من الميزات الرائعة بسهولة واحترافية.</p>
-    <p class="text-lg md:text-xl mb-8 max-w-xl animate-fadeInUp en-text hidden">Use our tools to edit photos, enhance quality, detect faces, and more — with ease and professionalism.</p>
-    <div class="flex gap-4 animate-fadeInUp">
-      <a href="{% url 'login' %}" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2 px-6 rounded-lg transition">تسجيل الدخول</a>
-      <a href="{% url 'register' %}" class="bg-white text-purple-700 hover:text-purple-900 border border-purple-700 hover:border-purple-900 font-semibold py-2 px-6 rounded-lg transition">سجل الآن</a>
-    </div>
-  </section>
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-10 backdrop-blur-lg border-b border-white border-opacity-20">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="text-2xl font-bold glow-text" id="logo">📸 استوديو الصور</div>
+            </div>
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <!-- Language Toggle -->
+                <button id="langToggle" class="px-3 py-1 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition">
+                    <span id="langText">EN</span>
+                </button>
+                <!-- Dark Mode Toggle -->
+                <div class="toggle-switch" id="darkModeToggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-  <!-- Features Section -->
-  <section class="py-16 px-4 md:px-20 bg-gray-100 dark:bg-gray-800 text-center">
-    <h3 class="text-3xl font-bold mb-12 ar-text">مميزات استوديو الصور</h3>
-    <h3 class="text-3xl font-bold mb-12 en-text hidden">Photo Studio Features</h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow hover:shadow-lg transition feature-card">
-        <h4 class="text-xl font-bold mb-2">تحسين الصور</h4>
-        <p class="text-sm">تحسين الحدة والألوان والوضوح تلقائياً.</p>
-      </div>
-      <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow hover:shadow-lg transition feature-card">
-        <h4 class="text-xl font-bold mb-2">كشف الوجوه</h4>
-        <p class="text-sm">كشف وتغبيش الوجوه لحماية الخصوصية.</p>
-      </div>
-      <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow hover:shadow-lg transition feature-card">
-        <h4 class="text-xl font-bold mb-2">قص الصور بدقة</h4>
-        <p class="text-sm">أداة قص تفاعلية وسهلة الاستخدام.</p>
-      </div>
-    </div>
-  </section>
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center relative z-10">
+        <div class="container mx-auto px-4 text-center hero-content">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 glow-text fade-in" id="heroTitle">
+                مرحباً بك في استوديو الصور
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90 fade-in" id="heroSubtitle" style="animation-delay: 0.3s;">
+                ابدأ رحلتك في تعديل الصور بسهولة واحترافية مع أدوات متقدمة وذكاء اصطناعي
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in" style="animation-delay: 0.6s;">
+                <a href="#" class="btn-primary px-8 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" id="loginBtn">
+                    تسجيل الدخول
+                </a>
+                <a href="#" class="px-8 py-4 bg-white bg-opacity-20 text-white font-semibold rounded-lg shadow-lg hover:bg-opacity-30 transform hover:scale-105 transition-all duration-300 backdrop-blur-sm" id="registerBtn">
+                    سجل الآن
+                </a>
+            </div>
+        </div>
+    </section>
 
-  <!-- Footer -->
-  <footer class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
-    &copy; 2025 استوديو الصور. جميع الحقوق محفوظة.
-  </footer>
+    <!-- Features Section -->
+    <section class="py-20 relative z-10">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-16 glow-text fade-in" id="featuresTitle">
+                ميزات استثنائية
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="feature-card bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                    <div class="feature-icon">
+                        <div class="text-4xl">🎨</div>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4" id="feature1Title">تعديل احترافي</h3>
+                    <p class="opacity-90" id="feature1Desc">أدوات متقدمة لتعديل الصور بجودة عالية ونتائج مبهرة</p>
+                </div>
+                <div class="feature-card bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                    <div class="feature-icon">
+                        <div class="text-4xl">🤖</div>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4" id="feature2Title">ذكاء اصطناعي</h3>
+                    <p class="opacity-90" id="feature2Desc">استخدم قوة الذكاء الاصطناعي لتحسين صورك تلقائياً</p>
+                </div>
+                <div class="feature-card bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                    <div class="feature-icon">
+                        <div class="text-4xl">☁️</div>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4" id="feature3Title">حفظ سحابي</h3>
+                    <p class="opacity-90" id="feature3Desc">احفظ أعمالك بأمان في السحابة مع إمكانية الوصول من أي مكان</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- Script -->
-  <script>
-    const langToggle = document.getElementById('langToggle');
-    const themeToggle = document.getElementById('themeToggle');
-    const arText = document.querySelectorAll('.ar-text');
-    const enText = document.querySelectorAll('.en-text');
+    <!-- CTA Section -->
+    <section class="py-20 relative z-10">
+        <div class="container mx-auto px-4 text-center">
+            <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-12 max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold mb-6 glow-text" id="ctaTitle">
+                    ابدأ رحلتك الإبداعية اليوم
+                </h2>
+                <p class="text-xl mb-8 opacity-90" id="ctaSubtitle">
+                    انضم إلى آلاف المصممين والمصورين الذين يثقون بنا
+                </p>
+                <a href="#" class="btn-primary px-10 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" id="ctaBtn">
+                    ابدأ مجاناً
+                </a>
+            </div>
+        </div>
+    </section>
 
-    langToggle.onclick = () => {
-      document.documentElement.dir = document.documentElement.dir === 'rtl' ? 'ltr' : 'rtl';
-      arText.forEach(e => e.classList.toggle('hidden'));
-      enText.forEach(e => e.classList.toggle('hidden'));
-      langToggle.textContent = document.documentElement.dir === 'rtl' ? 'English' : 'العربية';
-    };
+    <!-- Footer -->
+    <footer class="py-12 bg-black bg-opacity-20 backdrop-blur-lg">
+        <div class="container mx-auto px-4 text-center">
+            <p class="opacity-80" id="footerText">
+                &copy; 2024 استوديو الصور. جميع الحقوق محفوظة.
+            </p>
+        </div>
+    </footer>
 
-    themeToggle.onclick = () => {
-      document.documentElement.classList.toggle('dark');
-    };
+    <script>
+        // Language and content data
+        const content = {
+            ar: {
+                lang: 'ar',
+                dir: 'rtl',
+                logo: '📸 استوديو الصور',
+                langText: 'EN',
+                heroTitle: 'مرحباً بك في استوديو الصور',
+                heroSubtitle: 'ابدأ رحلتك في تعديل الصور بسهولة واحترافية مع أدوات متقدمة وذكاء اصطناعي',
+                loginBtn: 'تسجيل الدخول',
+                registerBtn: 'سجل الآن',
+                featuresTitle: 'ميزات استثنائية',
+                feature1Title: 'تعديل احترافي',
+                feature1Desc: 'أدوات متقدمة لتعديل الصور بجودة عالية ونتائج مبهرة',
+                feature2Title: 'ذكاء اصطناعي',
+                feature2Desc: 'استخدم قوة الذكاء الاصطناعي لتحسين صورك تلقائياً',
+                feature3Title: 'حفظ سحابي',
+                feature3Desc: 'احفظ أعمالك بأمان في السحابة مع إمكانية الوصول من أي مكان',
+                ctaTitle: 'ابدأ رحلتك الإبداعية اليوم',
+                ctaSubtitle: 'انضم إلى آلاف المصممين والمصورين الذين يثقون بنا',
+                ctaBtn: 'ابدأ مجاناً',
+                footerText: '© 2024 استوديو الصور. جميع الحقوق محفوظة.'
+            },
+            en: {
+                lang: 'en',
+                dir: 'ltr',
+                logo: '📸 Photo Studio',
+                langText: 'عربي',
+                heroTitle: 'Welcome to Photo Studio',
+                heroSubtitle: 'Start your photo editing journey with ease and professionalism using advanced tools and AI',
+                loginBtn: 'Login',
+                registerBtn: 'Register Now',
+                featuresTitle: 'Exceptional Features',
+                feature1Title: 'Professional Editing',
+                feature1Desc: 'Advanced tools for high-quality photo editing with stunning results',
+                feature2Title: 'Artificial Intelligence',
+                feature2Desc: 'Use the power of AI to enhance your photos automatically',
+                feature3Title: 'Cloud Storage',
+                feature3Desc: 'Save your work securely in the cloud with access from anywhere',
+                ctaTitle: 'Start Your Creative Journey Today',
+                ctaSubtitle: 'Join thousands of designers and photographers who trust us',
+                ctaBtn: 'Start Free',
+                footerText: '© 2024 Photo Studio. All rights reserved.'
+            }
+        };
 
-    if (localStorage.getItem('theme') === 'dark' ||
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-    }
-  </script>
+        let currentLang = 'ar';
+        let isDarkMode = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in animation to elements
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.2}s`;
+            });
+
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            darkModeToggle.addEventListener('click', function() {
+                isDarkMode = !isDarkMode;
+                document.documentElement.classList.toggle('dark', isDarkMode);
+                darkModeToggle.classList.toggle('active', isDarkMode);
+            });
+
+            // Language toggle
+            const langToggle = document.getElementById('langToggle');
+            langToggle.addEventListener('click', function() {
+                currentLang = currentLang === 'ar' ? 'en' : 'ar';
+                updateLanguage();
+            });
+
+            // Add smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Add scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.feature-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+
+        function updateLanguage() {
+            const data = content[currentLang];
+            const html = document.documentElement;
+            
+            // Update HTML attributes
+            html.setAttribute('lang', data.lang);
+            html.setAttribute('dir', data.dir);
+            
+            // Update body class for font
+            document.body.className = document.body.className.replace(/\b(ar|en)\b/g, '') + ' ' + data.lang;
+            
+            // Update all text content
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element && key !== 'lang' && key !== 'dir') {
+                    element.textContent = data[key];
+                }
+            });
+        }
+
+        // Add cursor effects
+        document.addEventListener('mousemove', function(e) {
+            const cursor = document.createElement('div');
+            cursor.style.position = 'fixed';
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursor.style.width = '4px';
+            cursor.style.height = '4px';
+            cursor.style.background = 'rgba(255, 255, 255, 0.5)';
+            cursor.style.borderRadius = '50%';
+            cursor.style.pointerEvents = 'none';
+            cursor.style.zIndex = '9999';
+            cursor.style.animation = 'fadeOut 0.5s ease-out forwards';
+            
+            document.body.appendChild(cursor);
+            
+            setTimeout(() => {
+                cursor.remove();
+            }, 500);
+        });
+
+        // Add fadeOut animation for cursor effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                0% { opacity: 1; transform: scale(1); }
+                100% { opacity: 0; transform: scale(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
