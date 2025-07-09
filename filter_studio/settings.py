@@ -1,4 +1,4 @@
-"""
+"""""
 Django settings for filter_studio project.
 """
 
@@ -14,9 +14,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=[])
+
+# ✅ إصلاح ALLOWED_HOSTS
+default_host = 'filterstudio.onrender.com'
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=default_host, cast=Csv())
 if DEBUG:
     ALLOWED_HOSTS += ['127.0.0.1', 'localhost']
+
+# ✅ لتفعيل التعرف على HTTPS الحقيقي عبر proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 INSTALLED_APPS = [
@@ -27,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'studio.apps.StudioConfig',
-    'storages', # <-- ✅ إضافة django-storages
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -68,10 +74,10 @@ DATABASES = {
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator' },
 ]
 
 # Internationalization
@@ -80,36 +86,30 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = 'static/'
 STATIC_ROOT = posixpath.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    posixpath.join(BASE_DIR, 'static'),
-]
+STATICFILES_DIRS = [posixpath.join(BASE_DIR, 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files - Supabase S3 Compatible Storage Settings
-# ✅ هذا هو الجزء الجديد والمهم
 AWS_ACCESS_KEY_ID = config('SUPABASE_S3_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('SUPABASE_S3_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = config('SUPABASE_S3_BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = config('SUPABASE_S3_ENDPOINT_URL')
 AWS_S3_REGION_NAME = config('SUPABASE_S3_REGION_NAME')
-# `AWS_S3_FILE_OVERWRITE` is a setting that controls whether files with the same name are allowed to
-# be overwritten when uploading to the specified S3 bucket.
-AWS_S3_FILE_OVERWRITE = False # لا تسمح بالكتابة فوق الملفات بنفس الاسم
-AWS_DEFAULT_ACL = 'public-read' # لجعل الملفات المرفوعة قابلة للقراءة بشكل عام
-AWS_S3_SIGNATURE_VERSION = 's3v4' # تأكد من استخدام الإصدار الصحيح للتوقيع
-# Set the default storage for media files
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = 'public-read'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 MEDIA_URL = '/media/'
-# MEDIA_ROOT لم يعد ضرورياً بنفس القدر عندما يتم الرفع مباشرة إلى S3
-# ولكن لا بأس من الاحتفاظ به كـ fallback أو لتوضيح المسار المحلي
 MEDIA_ROOT = posixpath.join(BASE_DIR, 'mediafiles')
 
-# Authentication settings
+# Authentication
 LOGIN_URL = 'login/'
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ✅ طباعة تصحيحية
+print("DEBUG:", DEBUG)
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
