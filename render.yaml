@@ -18,7 +18,7 @@ services:
       - key: EXTERNAL_DATABASE_URL
         value: postgresql://postgres.dlfewlzybgtytibhpdkv:filterstudio11@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
       - key: CLOUDINARY_CLOUD_NAME
-        value: dvn1afvqs
+        value: dvn1a1vqs # <--- هذا هو التصحيح الرئيسي! كان dvn1afvqs
       - key: CLOUDINARY_API_KEY
         value: '592247285933154'
       - key: CLOUDINARY_API_SECRET

@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config, Csv
+from decouple import config, Csv # <-- تأكد من هذه الاستيرادات
 import dj_database_url
+
 # لا حاجة لاستيراد cloudinary, cloudinary.uploader, cloudinary.api هنا إذا كنت تستخدم cloudinary_storage
 # import cloudinary
 # import cloudinary.uploader
@@ -45,13 +46,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cloudinary_storage',
-    'cloudinary', # تأكد من وجود هذا.
+    'cloudinary',
     'studio.apps.StudioConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # تأكد من أن WhiteNoiseMiddleware بعد SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -81,7 +82,6 @@ WSGI_APPLICATION = 'filter_studio.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-# استخدم EXTERNAL_DATABASE_URL الذي قمت بتعيينه لـ Supabase
 DATABASE_URL = config('EXTERNAL_DATABASE_URL')
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL)
@@ -127,26 +127,16 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 # Cloudinary Settings
-# لا تقم باستدعاء cloudinary.config() هنا مباشرة،
-# بل اسمح لـ cloudinary_storage بقراءة المتغيرات من البيئة.
-# تأكد من أن CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
-# موجودة كمتغيرات بيئة على Render (وهي موجودة لديك بالفعل في render.yaml و .env)
-
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage' # هذا هو الموصى به
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage'
 
-# Optional: Set a specific folder for static and media files in Cloudinary
-# هذه الإعدادات تتبع المعايير القياسية.
-# إذا كان خطأ 400 لا يزال يظهر، فقد يكون هناك مشكلة في كيفية تعامل Cloudinary مع مجلد 'static'
-# إذا لم يكن 'static' مقبولاً كجذر، ولكن هذا نادر.
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'), # يجب قراءتها من البيئة
-    'API_KEY': config('CLOUDINARY_API_KEY'), # يجب قراءتها من البيئة
-    'API_SECRET': config('CLOUDINARY_API_SECRET'), # يجب قراءتها من البيئة
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
     'MEDIA_FOLDER': 'media',
     'STATIC_FOLDER': 'static',
-    # قد تحتاج لتحديد resource_type إذا كانت الملفات ليست صوراً
-    # 'STATIC_RESORCE_TYPE': 'raw', # <-- إذا كانت الملفات الثابتة ليست صورًا فقط، فقد تحتاج لهذه. لكن جرب بدونها أولاً.
+    'STATIC_RESOURCE_TYPE': 'auto', # <-- تصحيح الخطأ الإملائي هنا
 }
 
 
