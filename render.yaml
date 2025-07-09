@@ -17,17 +17,19 @@ services:
         value: 1
       - key: EXTERNAL_DATABASE_URL
         value: postgresql://postgres.dlfewlzybgtytibhpdkv:filterstudio11@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
-      - key: AWS_ACCESS_KEY_ID
+
+      - key: SUPABASE_S3_ACCESS_KEY_ID
         value: 'bae71c74115b608cae852d982ddc0afa'
-      - key: AWS_SECRET_ACCESS_KEY
+      - key: SUPABASE_S3_SECRET_ACCESS_KEY
         value: 'fadc1332be0be1492ff71bb0369446014cf2dc6a93848a66bf3b20be895dbfb0'
-      - key: AWS_STORAGE_BUCKET_NAME
+      - key: SUPABASE_S3_BUCKET_NAME
         value: 'filterstudiobucket'
-      - key: AWS_S3_ENDPOINT_URL
+      - key: SUPABASE_S3_ENDPOINT_URL
         value: 'https://dlfewlzybgtytibhpdkv.supabase.co/storage/v1/s3'
-      - key: AWS_S3_REGION_NAME
+      - key: SUPABASE_S3_REGION_NAME
         value: 'eu-central-1'
+
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: filterstudio.onrender.com
+        value: "studyplatform-pz4f.onrender.com" 
