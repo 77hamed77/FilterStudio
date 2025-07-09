@@ -146,6 +146,7 @@ def preview_filter_view(request):
     except Exception as e:
         print(f"Error in preview: {e}")
         return JsonResponse({'error': f'فشل في المعاينة: {e}'}, status=500)
+# ... (جزء من studio/views.py) ...
 
 # --- دالة الرفع الرئيسية ---
 @login_required
@@ -179,23 +180,26 @@ def upload_view(request):
             'level': float(request.POST.get('sharpen_level') or 5.5),
             'blur_level': float(request.POST.get('blur_level') or 10),
         }
-        
+
         processed, info_message = apply_cv_filter(img, filter_type, params, original_buffer=img_buffer)
 
         # التعامل مع الصور الشفافة عند الحفظ
-        if len(processed.shape) > 2 and processed.shape[2] == 4:
+        # ✅ هذا الجزء يبدو صحيحاً للتعامل مع تنسيقات PNG/JPG
+        if len(processed.shape) > 2 and processed.shape[2] == 4: # إذا كانت الصورة تحتوي على قناة ألفا (شفافية)
             ext, encoder = '.png', cv2.imencode('.png', processed)[1]
         else:
+            # إذا لم تكن شفافة، تأكد أنها ليست صورة أحادية اللون قبل التحويل إلى BGR للتصوير كـ JPG
             if len(processed.shape) < 3: processed = cv2.cvtColor(processed, cv2.COLOR_GRAY2BGR)
             ext, encoder = '.jpg', cv2.imencode('.jpg', processed)[1]
-        
+
         processed_content = ContentFile(encoder.tobytes())
         file_name, _ = os.path.splitext(image_file.name)
         processed_filename = f'processed_{file_name}{ext}'
-        
+
+        # ✅ هذا هو الجزء الذي يقوم بالحفظ الفعلي
         new_image = ProcessedImage(user=request.user, original_image=image_file, filter_applied=filter_type)
-        new_image.processed_image.save(processed_filename, processed_content, save=True)
-        
+        new_image.processed_image.save(processed_filename, processed_content, save=True) # هنا يتم استخدام CloudinaryStorage
+
         if info_message: messages.info(request, info_message)
         messages.success(request, 'تم تطبيق الفلتر ورفع الصورة بنجاح!')
         return redirect('studio')
@@ -205,7 +209,7 @@ def upload_view(request):
         messages.error(request, f'حدث خطأ غير متوقع أثناء معالجة الصورة: {e}')
         return redirect('upload')
 
-# --- باقي دوال العرض (تبقى كما هي) ---
+# ... (بقية views.py) ...
 def home_view(request):
     return render(request, 'studio/home.html')
 

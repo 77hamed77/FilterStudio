@@ -1,14 +1,10 @@
-# studio/urls.py (النسخة النهائية المصححة)
+# studio/urls.py
 
 from django.urls import path
 from . import views
 
 urlpatterns = [
-    # ✅ الإصلاح: هذا السطر يضمن أن أي شخص يزور الرابط الرئيسي للموقع
-    # (مثل http://127.0.0.1:8000/) سيتم توجيهه إلى دالة home_view.
     path('', views.home_view, name='home'),
-    
-    # باقي الروابط تبقى كما هي
     path('upload/', views.upload_view, name='upload'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
