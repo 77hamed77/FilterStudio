@@ -1,10 +1,9 @@
-# studio/views.py (النسخة المعدلة لتعطيل rembg من أجل النشر)
+# studio/views.py
 
 import os
 import cv2
 import numpy as np
 import base64
-# from rembg import remove # <-- ✅ تم التعليق: الخطوة الأولى والأهم
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -58,7 +57,6 @@ def apply_cv_filter(img, filter_type, params=None):
     processed = img.copy()
     info_message = ""
     
-    # ✅ تم حذف منطق 'remove_background' من هنا
     if filter_type == 'grayscale':
         processed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     elif filter_type == 'invert':
