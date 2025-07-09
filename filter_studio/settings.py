@@ -135,7 +135,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': config('CLOUDINARY_API_KEY'),
     'API_SECRET': config('CLOUDINARY_API_SECRET'),
     'MEDIA_FOLDER': 'media',
-    'STATIC_FOLDER': 'static',
+    # 'STATIC_FOLDER': 'static',
     'STATIC_RESOURCE_TYPE': 'auto', # <-- تصحيح الخطأ الإملائي هنا
 }
 
