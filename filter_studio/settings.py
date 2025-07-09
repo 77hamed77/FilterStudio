@@ -31,10 +31,9 @@ SECRET_KEY = config('SECRET_KEY') # <-- تغيير لقراءة من .env
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool) # <-- تغيير لقراءة من .env
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='').split(',') # <-- تغيير لقراءة من .env
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=[]) # <-- تعديل هنا
 if DEBUG:
     ALLOWED_HOSTS += ['127.0.0.1', 'localhost']
-
 
 # Application definition
 INSTALLED_APPS = [
