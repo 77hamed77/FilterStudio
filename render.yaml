@@ -20,9 +20,9 @@ services:
       - key: CLOUDINARY_CLOUD_NAME
         value: dvn1afvqs
       - key: CLOUDINARY_API_KEY
-        value: '158996543676117'
+        value: '592247285933154'
       - key: CLOUDINARY_API_SECRET
-        value: 'lzbf6ULqc4crhpoHKNt-OHpXsWs'
+        value: 'bbSwA03j9a4yVzVZkysSYRDMv_g'
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
