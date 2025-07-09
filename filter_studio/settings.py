@@ -15,13 +15,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ✅ إصلاح ALLOWED_HOSTS
 default_host = 'filterstudio.onrender.com'
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=default_host, cast=Csv())
 if DEBUG:
     ALLOWED_HOSTS += ['127.0.0.1', 'localhost']
 
-# ✅ لتفعيل التعرف على HTTPS الحقيقي عبر proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
@@ -110,6 +108,5 @@ MEDIA_ROOT = posixpath.join(BASE_DIR, 'mediafiles')
 LOGIN_URL = 'login/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ✅ طباعة تصحيحية
 print("DEBUG:", DEBUG)
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)

@@ -1,5 +1,3 @@
-# studio/views.py
-
 import os
 import cv2
 import numpy as np
@@ -17,8 +15,7 @@ from django.core.files.base import ContentFile
 from .models import ProcessedImage, FILTER_CHOICES
 from .forms import CustomUserCreationForm
 
-# --- قسم تحميل النماذج (Cascades) ---
-# (يبقى كما هو دون تغيير)
+
 CASCADE_FILES = {
     'human_face': 'haarcascade_frontalface_alt2.xml',
     'cat_face': 'haarcascade_frontalcatface.xml',
@@ -40,9 +37,7 @@ for name, filename in CASCADE_FILES.items():
         print(f"!!! خطأ فادح: الملف '{filename}' غير موجود.")
         CASCADES[name] = None
 print("--- اكتمل تحميل النماذج ---")
-
-# --- معلمات كشف مخصصة لزيادة الدقة ---
-# (يبقى كما هو دون تغيير)
+# إعدادات الكشف عن الكائنات
 DETECTION_PARAMS = {
     'human_face': {'scaleFactor': 1.1, 'minNeighbors': 6, 'minSize': (40, 40)},
     'cat_face': {'scaleFactor': 1.1, 'minNeighbors': 4, 'minSize': (50, 50)},
@@ -51,7 +46,6 @@ DETECTION_PARAMS = {
     'default': {'scaleFactor': 1.1, 'minNeighbors': 5, 'minSize': (30, 30)},
 }
 
-# --- دالة مساعدة مركزية لتطبيق الفلاتر (مع التعديلات) ---
 def apply_cv_filter(img, filter_type, params=None):
     if params is None: params = {}
     processed = img.copy()
@@ -127,7 +121,6 @@ def preview_filter_view(request):
         img_array = np.frombuffer(img_data, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        # ✅ تعديل: تم حذف تمرير original_buffer
         processed_img, info_message = apply_cv_filter(img, filter_type, params)
         
         if len(processed_img.shape) == 2:

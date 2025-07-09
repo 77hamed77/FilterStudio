@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
     <style>
-        /* كل كود الـ CSS يبقى كما هو، لا حاجة لتعديله */
         body { font-family: 'Cairo', sans-serif; transition: background-color 0.3s ease; }
         .dark body { background: #111827; color: #f3f4f6; }
         @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
@@ -19,13 +18,8 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-animated text-gray-900 dark:text-gray-100 transition-colors duration-300">
-    <!-- ==================== الجزء الذي تم تعديله ==================== -->
     <!-- أزرار التحكم العلوية -->
     <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
-        {% comment %} <!-- زر العودة للصفحة الرئيسية -->
-        <a href="{% url 'home' %}" title="العودة للصفحة الرئيسية" class="bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-        </a> {% endcomment %}
 
         <!-- زر تبديل اللغة -->
         <button id="lang-toggle" class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full hover:bg-white/30 transition text-sm font-semibold">
@@ -39,7 +33,6 @@
             <svg id="dark-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
     </div>
-    <!-- ==================== نهاية الجزء المعدل ==================== -->
     
     <!-- Login Container -->
     <div class="min-h-screen flex items-center justify-center px-4 py-12">
@@ -124,8 +117,6 @@
             lightIcon.classList.add('hidden');
             darkIcon.classList.remove('hidden');
         }
-
-        // ==================== الجزء الذي تم تعديله ====================
         // Language toggle
         const langToggle = document.getElementById('lang-toggle');
         const arContent = document.querySelectorAll('.ar-content');
@@ -149,7 +140,6 @@
                 passwordInput.placeholder = 'أدخل كلمة المرور';
             }
         });
-        // ==================== نهاية الجزء المعدل ====================
     </script>
 </body>
 </html>
