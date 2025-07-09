@@ -90,11 +90,13 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files - Supabase S3 Compatible Storage Settings
 # ✅ هذا هو الجزء الجديد والمهم
-AWS_ACCESS_KEY_ID = config('SUPABASE_S3_ACCESS_KEY_ID') # ✅ متغير بيئة جديد
-AWS_SECRET_ACCESS_KEY = config('SUPABASE_S3_SECRET_ACCESS_KEY') # ✅ متغير بيئة جديد
-AWS_STORAGE_BUCKET_NAME = config('SUPABASE_S3_BUCKET_NAME') # ✅ متغير بيئة جديد
-AWS_S3_ENDPOINT_URL = config('SUPABASE_S3_ENDPOINT_URL') # ✅ متغير بيئة جديد
-AWS_S3_REGION_NAME = config('SUPABASE_S3_REGION_NAME') # ✅ متغير بيئة جديد
+AWS_ACCESS_KEY_ID = config('SUPABASE_S3_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('SUPABASE_S3_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('SUPABASE_S3_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = config('SUPABASE_S3_ENDPOINT_URL')
+AWS_S3_REGION_NAME = config('SUPABASE_S3_REGION_NAME')
+# `AWS_S3_FILE_OVERWRITE` is a setting that controls whether files with the same name are allowed to
+# be overwritten when uploading to the specified S3 bucket.
 AWS_S3_FILE_OVERWRITE = False # لا تسمح بالكتابة فوق الملفات بنفس الاسم
 AWS_DEFAULT_ACL = 'public-read' # لجعل الملفات المرفوعة قابلة للقراءة بشكل عام
 
