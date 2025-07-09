@@ -12,11 +12,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config, Csv # <-- إضافة
-import dj_database_url # <-- إضافة
-import cloudinary # <-- إضافة
-import cloudinary.uploader # <-- إضافة
-import cloudinary.api # <-- إضافة
+from decouple import config, Csv
+import dj_database_url
+# لا حاجة لاستيراد cloudinary, cloudinary.uploader, cloudinary.api هنا إذا كنت تستخدم cloudinary_storage
+# import cloudinary
+# import cloudinary.uploader
+# import cloudinary.api
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,12 +27,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY') # <-- تغيير لقراءة من .env
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool) # <-- تغيير لقراءة من .env
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=[]) # <-- تعديل هنا
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=[])
 if DEBUG:
     ALLOWED_HOSTS += ['127.0.0.1', 'localhost']
 
@@ -43,14 +44,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage', # <-- إضافة
-    'cloudinary', # <-- إضافة
+    'cloudinary_storage',
+    'cloudinary', # تأكد من وجود هذا.
     'studio.apps.StudioConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # <-- إضافة بعد SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware', # تأكد من أن WhiteNoiseMiddleware بعد SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -80,9 +81,10 @@ WSGI_APPLICATION = 'filter_studio.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-DATABASE_URL = config('DATABASE_URL') # <-- إضافة
+# استخدم EXTERNAL_DATABASE_URL الذي قمت بتعيينه لـ Supabase
+DATABASE_URL = config('EXTERNAL_DATABASE_URL')
 DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL) # <-- تغيير لقراءة من .env
+    'default': dj_database_url.parse(DATABASE_URL)
 }
 
 
@@ -122,23 +124,31 @@ STATICFILES_DIRS = [
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles') # <-- تم تغيير media إلى mediafiles لتجنب التضارب مع مجلد 'media' في Cloudinary
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
-# Cloudinary Settings # <-- قسم جديد لإعدادات Cloudinary
-cloudinary.config(
-    cloud_name = config('CLOUDINARY_CLOUD_NAME'),
-    api_key = config('CLOUDINARY_API_KEY'),
-    api_secret = config('CLOUDINARY_API_SECRET')
-)
+# Cloudinary Settings
+# لا تقم باستدعاء cloudinary.config() هنا مباشرة،
+# بل اسمح لـ cloudinary_storage بقراءة المتغيرات من البيئة.
+# تأكد من أن CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+# موجودة كمتغيرات بيئة على Render (وهي موجودة لديك بالفعل في render.yaml و .env)
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage'
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage' # هذا هو الموصى به
 
 # Optional: Set a specific folder for static and media files in Cloudinary
+# هذه الإعدادات تتبع المعايير القياسية.
+# إذا كان خطأ 400 لا يزال يظهر، فقد يكون هناك مشكلة في كيفية تعامل Cloudinary مع مجلد 'static'
+# إذا لم يكن 'static' مقبولاً كجذر، ولكن هذا نادر.
 CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'), # يجب قراءتها من البيئة
+    'API_KEY': config('CLOUDINARY_API_KEY'), # يجب قراءتها من البيئة
+    'API_SECRET': config('CLOUDINARY_API_SECRET'), # يجب قراءتها من البيئة
     'MEDIA_FOLDER': 'media',
     'STATIC_FOLDER': 'static',
+    # قد تحتاج لتحديد resource_type إذا كانت الملفات ليست صوراً
+    # 'STATIC_RESORCE_TYPE': 'raw', # <-- إذا كانت الملفات الثابتة ليست صورًا فقط، فقد تحتاج لهذه. لكن جرب بدونها أولاً.
 }
+
 
 # Authentication settings
 LOGIN_URL = 'login/'
