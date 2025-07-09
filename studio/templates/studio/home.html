@@ -3,156 +3,302 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>استوديو الصور | حول صورك إلى تحف فنية</title>
-    
+    <title data-lang-ar="الصفحة الرئيسية | استوديو الصور" data-lang-en="Homepage | Photo Studio"></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { font-family: 'Cairo', sans-serif; }
-        .dark body { background-color: #0d1117; }
-        .hero-bg {
-            background-color: #6366f1;
-            background-image: 
-                radial-gradient(at 27% 37%, hsla(222,78%,60%,1) 0px, transparent 50%),
-                radial-gradient(at 97% 21%, hsla(190,78%,70%,1) 0px, transparent 50%),
-                radial-gradient(at 3% 98%, hsla(289,78%,70%,1) 0px, transparent 50%);
+        /* Base styles for body and transitions */
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .dark .hero-bg {
-            background-image: 
-                radial-gradient(at 27% 37%, hsla(222,58%,30%,1) 0px, transparent 50%),
-                radial_gradient(at 97% 21%, hsla(190,58%,30%,1) 0px, transparent 50%),
-                radial-gradient(at 3% 98%, hsla(289,58%,40%,1) 0px, transparent 50%);
+
+        /* Dark mode styles */
+        body.dark {
+            background-color: #1a202c; /* Deeper dark background */
+            color: #e2e8f0; /* Lighter text for dark mode */
         }
-        .feature-card { transition: all 0.3s ease-in-out; }
-        .feature-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
-        .btn-glow:hover { box-shadow: 0 0 20px rgba(129, 140, 248, 0.6); }
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fade-in-up-animation 0.6s ease-out forwards;
+
+        /* Feature Card transitions and hover effects */
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            border-radius: 1rem; /* More rounded corners */
         }
-        @keyframes fade-in-up-animation {
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+        }
+        body.dark .feature-card {
+            background-color: #2d3748; /* Darker card background */
+        }
+        body.dark .feature-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Darker shadow for dark mode */
+        }
+
+        /* Animated Gradient Background */
+        @keyframes gradient {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        .bg-gradient-animated {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Vibrant gradient */
+            background-size: 400% 400%;
+            animation: gradient 20s ease infinite; /* Slower, smoother animation */
+        }
+        body.dark .bg-gradient-animated {
+            background: linear-gradient(135deg, #1a202c 0%, #4a5568 100%); /* Darker, subtle gradient */
+        }
+
+        /* Entry Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.8s ease-out forwards; }
+        .animate-delay-200 { animation-delay: 0.2s; }
+        .animate-delay-400 { animation-delay: 0.4s; }
+        .animate-delay-600 { animation-delay: 0.6s; }
+        .animate-delay-800 { animation-delay: 0.8s; }
+        .animate-delay-1000 { animation-delay: 1s; }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<body class="min-h-screen bg-gray-50 text-gray-900 transition-colors duration-300">
 
-    <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="{% url 'home' %}" class="text-2xl font-black text-purple-700 dark:text-purple-400">FilterStudio ✨</a>
-            <div class="flex items-center gap-4">
-                <a href="{% url 'login' %}" class="text-sm font-semibold hover:text-purple-600 dark:hover:text-purple-300">تسجيل الدخول</a>
-                <a href="{% url 'register' %}" class="bg-purple-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-purple-700 transition-colors">ابدأ الآن مجاناً</a>
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-                    <!-- Theme icons will go here via JS -->
-                </button>
-            </div>
-        </div>
+    <!-- Header / Navbar -->
+    <header class="py-4 px-8 flex justify-between items-center bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="text-2xl font-bold text-purple-700 dark:text-purple-400" data-lang-ar="استوديو الصور" data-lang-en="Photo Studio"></div>
+        <nav class="flex items-center space-x-4 md:space-x-reverse md:space-x-8">
+            <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition hidden md:block" data-lang-ar="الميزات" data-lang-en="Features"></a>
+            <a href="#gallery" class="text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition hidden md:block" data-lang-ar="المعرض" data-lang-en="Gallery"></a>
+            
+            <!-- Language Toggle -->
+            <button id="lang-toggle" class="text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition font-semibold px-2 py-1 rounded-md">
+                <span data-lang-ar="English" data-lang-en="العربية"></span>
+            </button>
+
+            <!-- Dark Mode Toggle -->
+            <button id="dark-mode-toggle" class="text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition text-xl">
+                <i class="fas fa-sun light-icon"></i>
+                <i class="fas fa-moon dark-icon hidden"></i>
+            </button>
+
+            <a href="{% url 'login' %}" class="text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition hidden md:block" data-lang-ar="تسجيل الدخول" data-lang-en="Login"></a>
+            <a href="{% url 'register' %}" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2 px-4 rounded-full shadow-md transition hidden md:block" data-lang-ar="سجل الآن" data-lang-en="Sign Up"></a>
+            
+            <!-- Mobile menu button -->
+            <button class="md:hidden text-gray-600 dark:text-gray-300 text-xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
     </header>
 
-    <main>
-        <!-- Hero Section -->
-        <section class="hero-bg text-white pt-32 pb-20">
-            <div class="container mx-auto px-6 text-center">
-                <h1 class="text-5xl md:text-7xl font-extrabold mb-4 leading-tight fade-in-up">حوّل صورك إلى تحف فنية<br/>بنقرة زر واحدة</h1>
-                <p class="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-indigo-200 fade-in-up" style="animation-delay: 0.2s;">
-                    منصة متكاملة للمصممين والمصورين تمنحك أدوات ذكية وسهلة لتعديل صورك وإبراز جمالها.
-                </p>
-                <div class="fade-in-up" style="animation-delay: 0.4s;">
-                    <a href="{% url 'register' %}" class="bg-white text-purple-700 font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:bg-gray-100 transition transform hover:scale-105 btn-glow">
-                        ابدأ رحلتك الإبداعية
-                    </a>
-                </div>
-            </div>
-        </section>
+    <!-- Hero Section -->
+    <section class="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center text-center px-4 py-16 bg-gradient-animated text-white">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in"
+            data-lang-ar="أطلق العنان لإبداعك في عالم الصور"
+            data-lang-en="Unleash Your Creativity in the World of Images">
+        </h1>
+        <p class="text-lg md:text-2xl mb-8 max-w-3xl text-white text-opacity-90 animate-slide-up animate-delay-200"
+           data-lang-ar="استوديو الصور يوفر لك أدوات تعديل صور احترافية مدعومة بالذكاء الاصطناعي لنتائج مذهلة وبأقل مجهود."
+           data-lang-en="Photo Studio provides you with professional AI-powered image editing tools for stunning results with minimal effort.">
+        </p>
+        
+        <!-- Placeholder for an engaging visual demo -->
+        <div class="mb-10 w-full max-w-4xl animate-fade-in animate-delay-400">
+            <img src="https://placehold.co/1000x560/667eea/ffffff?text=عرض+ميزات+الموقع+هنا" 
+                 alt="عرض ميزات الموقع" 
+                 class="rounded-xl shadow-2xl border-4 border-white/50 transform hover:scale-105 transition-transform duration-500 ease-in-out">
+            <!-- Replace with actual video/GIF of rembg or filter application -->
+            <p class="text-sm mt-2 text-white text-opacity-70" data-lang-ar="شاهد كيف يمكنك تحويل صورك بلمسة زر!" data-lang-en="See how you can transform your photos with a single click!"></p>
+        </div>
 
-        <!-- Features Section -->
-        <section class="py-20 bg-white dark:bg-gray-900">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white">أطلق العنان لإبداعك</h2>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2">مجموعة من أقوى الفلاتر الذكية بين يديك.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Feature 1: إزالة الخلفية -->
-                    <div class="feature-card bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl text-center">
-                        <div class="bg-purple-100 dark:bg-purple-900/50 inline-block p-4 rounded-full mb-4"><svg class="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
-                        <h3 class="text-xl font-bold mb-2">إزالة الخلفية بذكاء</h3>
-                        <p class="text-gray-600 dark:text-gray-400">اعزل عناصرك الأساسية عن الخلفية بدقة فائقة بفضل الذكاء الاصطناعي.</p>
-                    </div>
-                    <!-- Feature 2: كشف الوجوه -->
-                    <div class="feature-card bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl text-center">
-                        <div class="bg-indigo-100 dark:bg-indigo-900/50 inline-block p-4 rounded-full mb-4"><svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
-                        <h3 class="text-xl font-bold mb-2">تحليل دقيق للصور</h3>
-                        <p class="text-gray-600 dark:text-gray-400">كشف الوجوه، الابتسامات، والعيون لتعديلات موجهة ودقيقة.</p>
-                    </div>
-                    <!-- Feature 3: قص وتعديل تفاعلي -->
-                    <div class="feature-card bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl text-center">
-                        <div class="bg-teal-100 dark:bg-teal-900/50 inline-block p-4 rounded-full mb-4"><svg class="w-8 h-8 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></div>
-                        <h3 class="text-xl font-bold mb-2">تحكم كامل وسهل</h3>
-                        <p class="text-gray-600 dark:text-gray-400">قص صورك بحرية تامة واضبط درجة الحدة والتعتيم كما تريد.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 md:space-x-reverse animate-slide-up animate-delay-600">
+            <a href="{% url 'studio' %}" class="inline-block bg-white text-purple-700 hover:bg-gray-100 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out text-lg transform hover:scale-105">
+                <span data-lang-ar="ابدأ التعديل مجاناً" data-lang-en="Start Editing for Free"></span> <i class="fas fa-arrow-left mr-2"></i>
+            </a>
+            <a href="#features" class="inline-block text-white hover:text-purple-200 border-2 border-white hover:border-purple-200 font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out text-lg transform hover:scale-105">
+                <span data-lang-ar="اكتشف الميزات" data-lang-en="Explore Features"></span> <i class="fas fa-chevron-down mr-2"></i>
+            </a>
+        </div>
+    </section>
 
-        <!-- Call to Action Section -->
-        <section class="bg-gray-100 dark:bg-gray-800 py-20">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">هل أنت جاهز لتبدأ؟</h2>
-                <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">انضم إلى مجتمع المبدعين اليوم. التسجيل مجاني تماماً.</p>
-                <a href="{% url 'register' %}" class="bg-purple-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:bg-purple-700 transition transform hover:scale-105 btn-glow">
-                    إنشاء حسابي الآن
-                </a>
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-gray-100 dark:bg-gray-800">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-5xl font-bold mb-12 text-gray-800 dark:text-gray-100 animate-fade-in animate-delay-800"
+                data-lang-ar="ميزات صُممت لتعزيز إبداعك كمصمم"
+                data-lang-en="Features Designed to Boost Your Creativity as a Designer">
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature Card 1: Background Removal -->
+                <div class="feature-card bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg flex flex-col items-center text-center animate-slide-up animate-delay-1000">
+                    <i class="fas fa-cut text-6xl text-purple-600 mb-4"></i>
+                    <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-100"
+                        data-lang-ar="إزالة الخلفيات بالذكاء الاصطناعي"
+                        data-lang-en="AI-Powered Background Removal">
+                    </h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4"
+                       data-lang-ar="افصل العناصر عن خلفياتها بدقة مذهلة، حتى مع التفاصيل المعقدة، بلمسة زر واحدة."
+                       data-lang-en="Isolate subjects from their backgrounds with stunning precision, even with complex details, at a single click.">
+                    </p>
+                    <img src="https://placehold.co/300x200/9333ea/ffffff?text=قبل+وبعد+الخلفية" alt="إزالة الخلفيات" class="rounded-md w-full mb-4 shadow-md">
+                    <a href="#" class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200 font-semibold"
+                       data-lang-ar="تعرف على المزيد &rarr;" data-lang-en="Learn More &rarr;"></a>
+                </div>
+
+                <!-- Feature Card 2: Creative Filters -->
+                <div class="feature-card bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg flex flex-col items-center text-center animate-slide-up animate-delay-1200">
+                    <i class="fas fa-palette text-6xl text-blue-600 mb-4"></i>
+                    <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-100"
+                        data-lang-ar="مكتبة فلاتر احترافية"
+                        data-lang-en="Professional Filter Library">
+                    </h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4"
+                       data-lang-ar="استكشف مجموعة واسعة من الفلاتر الفنية التي تضفي لمسة فريدة على صورك."
+                       data-lang-en="Explore a wide range of artistic filters that add a unique touch to your photos.">
+                    </p>
+                     <img src="https://placehold.co/300x200/3b82f6/ffffff?text=تأثيرات+إبداعية" alt="فلاتر إبداعية" class="rounded-md w-full mb-4 shadow-md">
+                    <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 font-semibold"
+                       data-lang-ar="تعرف على المزيد &rarr;" data-lang-en="Learn More &rarr;"></a>
+                </div>
+
+                <!-- Feature Card 3: Object Detection -->
+                <div class="feature-card bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg flex flex-col items-center text-center animate-slide-up animate-delay-1400">
+                    <i class="fas fa-crosshairs text-6xl text-red-600 mb-4"></i>
+                    <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-100"
+                        data-lang-ar="التعرف الذكي على الكائنات"
+                        data-lang-en="Smart Object Detection">
+                    </h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4"
+                       data-lang-ar="حدد واكتشف الكائنات في صورك بدقة، من الوجوه إلى لوحات الترخيص، لتركيز التعديل."
+                       data-lang-en="Accurately identify and detect objects in your photos, from faces to license plates, for focused editing.">
+                    </p>
+                     <img src="https://placehold.co/300x200/ef4444/ffffff?text=كشف+الكائنات" alt="كشف الكائنات" class="rounded-md w-full mb-4 shadow-md">
+                    <a href="#" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 font-semibold"
+                       data-lang-ar="تعرف على المزيد &rarr;" data-lang-en="Learn More &rarr;"></a>
+                </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="py-16 bg-gradient-animated text-white text-center">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6 animate-fade-in animate-delay-1600"
+                data-lang-ar="جاهز لإطلاق العنان لإبداعك؟"
+                data-lang-en="Ready to Unleash Your Creativity?">
+            </h2>
+            <p class="text-lg md:text-xl mb-10 max-w-2xl mx-auto animate-slide-up animate-delay-1800"
+               data-lang-ar="انضم إلى مجتمع المصممين لدينا وابدأ في تحويل صورك اليوم!"
+               data-lang-en="Join our community of designers and start transforming your photos today!">
+            </p>
+            <a href="{% url 'register' %}" class="inline-block bg-white text-purple-700 hover:bg-gray-100 font-bold py-4 px-10 rounded-full shadow-lg transition duration-300 ease-in-out text-xl transform hover:scale-105 animate-fade-in animate-delay-2000">
+                <span data-lang-ar="ابدأ مجاناً الآن" data-lang-en="Get Started Free Now"></span> <i class="fas fa-arrow-left mr-2"></i>
+            </a>
+        </div>
+    </section>
 
     <!-- Footer -->
-    <footer class="bg-white dark:bg-gray-900 py-6">
-        <div class="container mx-auto px-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-            © {% now "Y" %} FilterStudio. كل الحقوق محفوظة.
+    <footer class="bg-gray-900 dark:bg-gray-950 text-gray-300 py-8 text-center">
+        <div class="container mx-auto px-4">
+            <p data-lang-ar="&copy; 2025 استوديو الصور. جميع الحقوق محفوظة." data-lang-en="&copy; 2025 Photo Studio. All rights reserved."></p>
+            <div class="mt-4 space-x-4 space-x-reverse">
+                <a href="#" class="hover:text-white transition" data-lang-ar="سياسة الخصوصية" data-lang-en="Privacy Policy"></a>
+                <a href="#" class="hover:text-white transition" data-lang-ar="شروط الاستخدام" data-lang-en="Terms of Use"></a>
+                <a href="#" class="hover:text-white transition" data-lang-ar="اتصل بنا" data-lang-en="Contact Us"></a>
+            </div>
         </div>
     </footer>
 
+    <!-- JavaScript for Dark Mode and Language Toggle -->
     <script>
-        // JS for theme toggle (add icons dynamically)
-        const themeToggle = document.getElementById('theme-toggle');
-        const lightIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
-        const darkIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`;
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const langToggle = document.getElementById('lang-toggle');
+        const body = document.body;
 
-        function applyTheme(theme) {
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                themeToggle.innerHTML = lightIcon;
-            } else {
-                document.documentElement.classList.remove('dark');
-                themeToggle.innerHTML = darkIcon;
-            }
+        // --- Dark Mode Functionality ---
+        const enableDarkMode = () => {
+            body.classList.add('dark');
+            darkModeToggle.querySelector('.light-icon').classList.add('hidden');
+            darkModeToggle.querySelector('.dark-icon').classList.remove('hidden');
+            localStorage.setItem('theme', 'dark');
+        };
+
+        const disableDarkMode = () => {
+            body.classList.remove('dark');
+            darkModeToggle.querySelector('.light-icon').classList.remove('hidden');
+            darkModeToggle.querySelector('.dark-icon').classList.add('hidden');
+            localStorage.setItem('theme', 'light');
+        };
+
+        // Check for saved theme preference on load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            enableDarkMode();
+        } else if (savedTheme === 'light') {
+            disableDarkMode();
+        } else {
+            // Default to light mode if no preference
+            disableDarkMode();
         }
-        
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-            localStorage.setItem('theme', currentTheme);
-            applyTheme(currentTheme);
-        });
-        
-        // Initial theme check
-        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        applyTheme(savedTheme);
 
-        // Observer for fade-in animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
+        darkModeToggle.addEventListener('click', () => {
+            if (body.classList.contains('dark')) {
+                disableDarkMode();
+            } else {
+                enableDarkMode();
+            }
+        });
+
+        // --- Language Toggle Functionality ---
+        const updateContentLanguage = (lang) => {
+            document.querySelectorAll('[data-lang-ar], [data-lang-en]').forEach(element => {
+                if (lang === 'ar') {
+                    element.textContent = element.dataset.langAr;
+                    document.documentElement.setAttribute('lang', 'ar');
+                    document.documentElement.setAttribute('dir', 'rtl');
+                    // Reverse space-x-reverse for RTL
+                    document.querySelectorAll('.space-x-reverse').forEach(el => {
+                        el.classList.add('space-x-reverse-active');
+                    });
+                } else {
+                    element.textContent = element.dataset.langEn;
+                    document.documentElement.setAttribute('lang', 'en');
+                    document.documentElement.setAttribute('dir', 'ltr');
+                    // Remove space-x-reverse for LTR
+                    document.querySelectorAll('.space-x-reverse').forEach(el => {
+                        el.classList.remove('space-x-reverse-active');
+                    });
                 }
             });
-        }, { threshold: 0.1 });
-        
-        document.querySelectorAll('.fade-in-up, .feature-card').forEach(el => observer.observe(el));
+            localStorage.setItem('lang', lang);
+        };
+
+        // Initial language setting
+        const savedLang = localStorage.getItem('lang');
+        if (savedLang) {
+            updateContentLanguage(savedLang);
+        } else {
+            // Default to Arabic if no preference
+            updateContentLanguage('ar');
+        }
+
+        langToggle.addEventListener('click', () => {
+            const currentLang = localStorage.getItem('lang') || 'ar';
+            if (currentLang === 'ar') {
+                updateContentLanguage('en');
+            } else {
+                updateContentLanguage('ar');
+            }
+        });
     </script>
 </body>
 </html>
