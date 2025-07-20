@@ -94,9 +94,23 @@
     *   أنشئ ملفاً باسم `.env` في جذر المشروع.
     *   أضف المتغيرات التالية إلى الملف مع قيمك الخاصة:
     ```env
-    SECRET_KEY=your_django_secret_key
-    DATABASE_URL=your_supabase_postgres_connection_url
-    CLOUDINARY_URL=your_supabase_storage_or_other_storage_url
+    SECRET_KEY=''
+    DEBUG=
+    DATABASE_URL=''
+    AWS_ACCESS_KEY_ID=''
+    AWS_SECRET_ACCESS_KEY=''
+    AWS_STORAGE_BUCKET_NAME=''
+    AWS_S3_ENDPOINT_URL=''
+    AWS_S3_REGION_NAME=''
+    WEB_CONCURRENCY=1
+    ALLOWED_HOSTS=filterstudio.onrender.com
+    PYTHON_VERSION=''
+    EXTERNAL_DATABASE_URL=''
+    SUPABASE_S3_ACCESS_KEY_ID=''
+    SUPABASE_S3_SECRET_ACCESS_KEY=''
+    SUPABASE_S3_BUCKET_NAME=''
+    SUPABASE_S3_ENDPOINT_URL=''
+    SUPABASE_S3_REGION_NAME=''
     ```
 
 5.  **تطبيق التحديثات على قاعدة البيانات (Apply migrations):**
