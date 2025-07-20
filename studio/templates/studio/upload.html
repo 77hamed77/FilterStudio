@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body { font-family: 'Cairo', sans-serif; }
         .dark body { background: #111827; }
@@ -21,22 +19,12 @@
             backdrop-filter: blur(2px);
             border-radius: 0.5rem;
         }
-        /* Style for active filter type button */
-        .filter-type-button.active {
-            background-color: #8b5cf6; /* purple-500 */
-            color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .dark .filter-type-button.active {
-            background-color: #a78bfa; /* purple-400 */
-        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <div class="absolute top-4 left-4 z-20">
         <button id="theme-toggle" class="bg-white/30 dark:bg-gray-700/50 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/40 transition">
-            <i class="fas fa-sun light-icon text-xl text-yellow-400"></i>
-            <i class="fas fa-moon dark-icon text-xl text-purple-300 hidden"></i>
+            <!-- Icons for theme toggle -->
         </button>
     </div>
 
@@ -56,10 +44,7 @@
 
             <form id="uploadForm" method="post" enctype="multipart/form-data" class="space-y-6" onsubmit="document.getElementById('loader').classList.remove('hidden')">
                 {% csrf_token %}
-                <input type="hidden" name="crop_x" id="crop_x">
-                <input type="hidden" name="crop_y" id="crop_y">
-                <input type="hidden" name="crop_width" id="crop_width">
-                <input type="hidden" name="crop_height" id="crop_height">
+                <input type="hidden" name="crop_x" id="crop_x"><input type="hidden" name="crop_y" id="crop_y"><input type="hidden" name="crop_width" id="crop_width"><input type="hidden" name="crop_height" id="crop_height">
 
                 <div>
                     <label for="image_input" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">1. اختر صورة</label>
@@ -73,20 +58,12 @@
                 </div>
 
                 <div>
-                    <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300">2. اختر نوع الفلتر</label>
-                    <div class="flex space-x-4 space-x-reverse mb-4">
-                        <button type="button" id="classic-filters-btn" class="filter-type-button flex-1 py-2 px-4 rounded-md border border-purple-500 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-700/50 transition active" data-filter-type="classic">
-                            فلاتر كلاسيكية
-                        </button>
-                        <button type="button" id="ai-filters-btn" class="filter-type-button flex-1 py-2 px-4 rounded-md border border-purple-500 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-700/50 transition" data-filter-type="ai">
-                            فلاتر الذكاء الاصطناعي (AI)
-                        </button>
-                    </div>
-
-                    <label for="filter_select" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">3. اختر الفلتر المحدد</label>
+                    <label for="filter_select" class="block mb-2 font-medium text-gray-700 dark:text-gray-300">2. اختر الفلتر</label>
                     <select id="filter_select" name="filter" required class="w-full rounded-md border border-gray-300 dark:border-gray-600 p-3 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-purple-500">
                         <option value="" disabled selected>-- اختر فلتر --</option>
-                        <!-- Options will be populated by JavaScript -->
+                        {% for value, name in filter_choices %}
+                            <option value="{{ value }}">{{ name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 
@@ -126,72 +103,10 @@
         const blurValue = document.getElementById('blur_value');
         const messageContainer = document.getElementById('message-container');
         
-        const classicFiltersBtn = document.getElementById('classic-filters-btn');
-        const aiFiltersBtn = document.getElementById('ai-filters-btn');
-        const filterTypeButtons = document.querySelectorAll('.filter-type-button');
-
         let originalImageDataURL = null;
         let cropper = null;
         let previewTimeout;
 
-        // --- Filter Data from Django Context ---
-        // ✅ تم حذف 'remove_background' من هذه القائمة
-        const ALL_FILTERS = [
-            // Classic Filters
-            {'value': 'original', 'name': 'الصورة الأصلية', 'type': 'classic'},
-            {'value': 'crop', 'name': 'قص الصورة (تفاعلي)', 'type': 'classic'},
-            {'value': 'grayscale', 'name': 'تحويل إلى الرمادي', 'type': 'classic'},
-            {'value': 'invert', 'name': 'قلب الألوان', 'type': 'classic'},
-            {'value': 'sharpen', 'name': 'زيادة الحدة (تفاعلي)', 'type': 'classic'},
-            // AI Filters
-            {'value': 'blur_faces', 'name': 'طمس الوجوه (AI)', 'type': 'ai'},
-            {'value': 'detect_human_face', 'name': 'التعرف على وجوه البشر (AI)', 'type': 'ai'},
-            {'value': 'detect_cat_face', 'name': 'التعرف على وجوه القطط (AI)', 'type': 'ai'},
-            {'value': 'detect_eyes', 'name': 'التعرف على العيون (AI)', 'type': 'ai'},
-            {'value': 'detect_smile', 'name': 'التعرف على الابتسامات (AI)', 'type': 'ai'},
-            {'value': 'detect_full_body', 'name': 'التعرف على كامل الجسد (AI)', 'type': 'ai'},
-            {'value': 'detect_upper_body', 'name': 'التعرف على الجزء العلوي من الجسد (AI)', 'type': 'ai'},
-            {'value': 'detect_license_plate', 'name': 'التعرف على لوحات السيارات (AI)', 'type': 'ai'},
-        ];
-
-        const CLASSIC_FILTERS = ALL_FILTERS.filter(f => f.type === 'classic');
-        const AI_FILTERS = ALL_FILTERS.filter(f => f.type === 'ai');
-
-        // --- Theme Toggle Logic ---
-        const themeToggle = document.getElementById('theme-toggle');
-        const lightIcon = themeToggle.querySelector('.light-icon');
-        const darkIcon = themeToggle.querySelector('.dark-icon');
-
-        const enableDarkMode = () => {
-            body.classList.add('dark');
-            lightIcon.classList.add('hidden');
-            darkIcon.classList.remove('hidden');
-            localStorage.setItem('theme', 'dark');
-        };
-
-        const disableDarkMode = () => {
-            body.classList.remove('dark');
-            lightIcon.classList.remove('hidden');
-            darkIcon.classList.add('hidden');
-            localStorage.setItem('theme', 'light');
-        };
-
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            enableDarkMode();
-        } else {
-            disableDarkMode(); // Default to light if no preference or 'light'
-        }
-
-        themeToggle.addEventListener('click', () => {
-            if (body.classList.contains('dark')) {
-                disableDarkMode();
-            } else {
-                enableDarkMode();
-            }
-        });
-
-        // --- Cropper and Preview Logic ---
         function initCropper(url) {
             if (cropper) cropper.destroy();
             previewImage.src = url;
@@ -206,45 +121,30 @@
                 originalImageDataURL = event.target.result;
                 previewContainer.classList.remove('hidden');
                 initCropper(originalImageDataURL);
-                filterSelect.value = ''; // Reset filter selection
+                filterSelect.value = '';
                 sharpenControls.classList.add('hidden');
                 blurControls.classList.add('hidden');
-                messageContainer.innerHTML = ''; // Clear messages
-                // Automatically select classic filters on new image upload
-                populateFilters('classic'); 
-                classicFiltersBtn.classList.add('active');
-                aiFiltersBtn.classList.remove('active');
             };
             reader.readAsDataURL(file);
         });
 
         async function updatePreview() {
-            if (!originalImageDataURL || !filterSelect.value) {
-                // If no filter selected, revert to original image
-                if (originalImageDataURL) {
-                    initCropper(originalImageDataURL);
-                }
+            if (!originalImageDataURL) return;
+            const filter = filterSelect.value;
+            if (!filter) {
+                initCropper(originalImageDataURL);
                 return;
             }
 
             previewContainer.classList.add('loading');
-            messageContainer.innerHTML = ''; // Clear previous messages
+            messageContainer.innerHTML = '';
             
             const formData = new FormData();
             formData.append('image_data', originalImageDataURL);
-            formData.append('filter_type', filterSelect.value);
+            formData.append('filter_type', filter);
             formData.append('sharpen_level', sharpenLevel.value);
             formData.append('blur_level', blurLevel.value);
             
-            // If crop filter is active, send crop data
-            if (filterSelect.value === 'crop' && cropper && cropper.cropped) {
-                const data = cropper.getData(true);
-                formData.append('crop_x', data.x);
-                formData.append('crop_y', data.y);
-                formData.append('crop_width', data.width);
-                formData.append('crop_height', data.height);
-            }
-
             const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
             
             try {
@@ -253,10 +153,7 @@
                     headers: { 'X-CSRFToken': csrfToken },
                     body: formData
                 });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Server error: ${response.status} - ${errorText}`);
-                }
+                if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
                 const data = await response.json();
 
                 if (data.error) throw new Error(data.error);
@@ -282,23 +179,12 @@
 
         filterSelect.addEventListener('change', () => {
             const filter = filterSelect.value;
-            // Show/hide specific controls
             sharpenControls.classList.toggle('hidden', filter !== 'sharpen');
             blurControls.classList.toggle('hidden', filter !== 'blur_faces');
             
-            // Cropper specific logic
             if (cropper) {
-                if (filter === 'crop') {
-                    cropper.crop(); // Enable cropping
-                } else {
-                    cropper.clear(); // Clear crop box
-                    // Revert image to original if not cropping
-                    if (originalImageDataURL) {
-                        cropper.replace(originalImageDataURL);
-                    }
-                }
+                filter === 'crop' ? cropper.crop() : cropper.clear();
             }
-            debounceUpdatePreview(); // Trigger preview update
         });
 
         sharpenLevel.addEventListener('input', () => {
@@ -319,48 +205,9 @@
                 document.getElementById('crop_width').value = data.width;
                 document.getElementById('crop_height').value = data.height;
             }
-            // Ensure loader is shown on final submit
-            document.getElementById('loader').classList.remove('hidden');
         });
-
-        // --- Filter Type Selection Logic ---
-        function populateFilters(type) {
-            filterSelect.innerHTML = '<option value="" disabled selected>-- اختر فلتر --</option>';
-            const filtersToDisplay = type === 'classic' ? CLASSIC_FILTERS : AI_FILTERS;
-            filtersToDisplay.forEach(filter => {
-                const option = document.createElement('option');
-                option.value = filter.value;
-                option.textContent = filter.name;
-                filterSelect.appendChild(option);
-            });
-            filterSelect.value = ''; // Reset selection after repopulating
-            // Hide specific controls when filter type changes
-            sharpenControls.classList.add('hidden');
-            blurControls.classList.add('hidden');
-            // Revert preview to original image
-            if (originalImageDataURL) {
-                initCropper(originalImageDataURL);
-            }
-        }
-
-        filterTypeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                filterTypeButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                const type = button.dataset.filterType;
-                populateFilters(type);
-            });
-        });
-
-        // Initial population of filters (default to classic)
-        populateFilters('classic');
-        classicFiltersBtn.classList.add('active');
-
-        // --- Theme Toggle (if implemented in this template) ---
-        // This part assumes you have a language toggle button similar to the homepage.
-        // If not, you can ignore or remove this section.
-        // Note: The homepage example had a language toggle, but this upload.html does not.
-        // If you want language toggle here, you'd need to add the button and related JS.
+        
+        // Add theme toggle logic if needed, otherwise this is complete.
     });
     </script>
 </body>
