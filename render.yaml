@@ -5,7 +5,7 @@ services:
     pythonVersion: 3.10.11
     buildCommand: "./build.sh"
     startCommand: "gunicorn filter_studio.wsgi:application"
-    healthCheckPath: /studio/login/
+    healthCheckPath: /login/
     envVars:
       - key: DATABASE_URL
         fromDatabase:

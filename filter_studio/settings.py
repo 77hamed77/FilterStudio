@@ -97,7 +97,7 @@ AWS_STORAGE_BUCKET_NAME = config('SUPABASE_S3_BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = config('SUPABASE_S3_ENDPOINT_URL')
 AWS_S3_REGION_NAME = config('SUPABASE_S3_REGION_NAME')
 AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = 'public-read'
+AWS_DEFAULT_ACL = None
 AWS_S3_SIGNATURE_VERSION = 's3v4'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
@@ -110,3 +110,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 print("DEBUG:", DEBUG)
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+# أضف هذا السطر مع باقي الإعدادات الأمنية
+CSRF_TRUSTED_ORIGINS = ['https://filterstudio.onrender.com']
