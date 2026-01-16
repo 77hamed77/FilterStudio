@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="scroll-smooth">
 <head>
@@ -5,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>الصفحة الرئيسية | استوديو الصور</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
         :root {
@@ -205,7 +208,7 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-10 backdrop-blur-lg border-b border-white border-opacity-20">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-4 space-x-reverse">
-                <div class="text-2xl font-bold glow-text" id="logo">📸 استوديو الصور</div>
+                <div class="text-2xl font-bold glow-text" id="logo">استوديو الصور</div><img src="{% static 'images/logo.png' %}" class="w-8 h-8"/>
             </div>
             <div class="flex items-center space-x-4 space-x-reverse">
                 <!-- Language Toggle -->
@@ -304,7 +307,7 @@
             ar: {
                 lang: 'ar',
                 dir: 'rtl',
-                logo: '📸 استوديو الصور',
+                logo: 'استوديو الصور',
                 langText: 'EN',
                 heroTitle: 'مرحباً بك في استوديو الصور',
                 heroSubtitle: 'ابدأ رحلتك في تعديل الصور بسهولة واحترافية مع أدوات متقدمة وذكاء اصطناعي',
@@ -325,7 +328,7 @@
             en: {
                 lang: 'en',
                 dir: 'ltr',
-                logo: '📸 Photo Studio',
+                logo: 'Photo Studio',
                 langText: 'عربي',
                 heroTitle: 'Welcome to Photo Studio',
                 heroSubtitle: 'Start your photo editing journey with ease and professionalism using advanced tools and AI',
